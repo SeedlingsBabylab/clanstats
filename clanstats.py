@@ -109,16 +109,28 @@ overlap_codes = [
 
 class ClanFile:
 
-    def __init__(self, path):
+    def __init__(self, path, output_path):
         self.clanfile_path = path
+        if os.path.isdir(output_path):
+            out_name = os.path.splitext(path)[0]
+            out_name = os.path.split(out_name)[1] + "_clanstats.csv"
+            self.out_path = os.path.join(self.out_path, out_name)
+        else:
+            self.out_path = output_path
+        self.out_path = output_path
+        self.filename = os.path.split(path)[1]
+        print "filename: " + self.filename
         self.annotated = False
         self.clan_intervals = []
         self.entries = []
 
         self.parse_clan()
 
+        self.speaker_match = None   # percent correct speaker codes
+
 
     def parse_clan(self):
+        print "hello there"
         interval_regx = re.compile("(\d+_\d+)")
 
         re1 ='(&)'	             # ampersand
@@ -132,6 +144,7 @@ class ClanFile:
 
 
         with open(self.clanfile_path, "rU") as file:
+
             for line in file:
                 clan_code = None
                 if line.startswith("*"):
@@ -144,20 +157,25 @@ class ClanFile:
                         present      = m.group(4)
                         second_pipe  = m.group(5)
                         speaker_code = m.group(6)
-                        print "clan code: " + clan_code
-                        print "("+amp+")"+\
-                              "("+utt_type+")"+\
-                              "("+first_pipe+")"+\
-                              "("+present+")"+\
-                              "("+second_pipe+")"+\
-                              "("+speaker_code+")"
+                        # print "clan code: " + clan_code
+                        # print "("+amp+")"+\
+                        #       "("+utt_type+")"+\
+                        #       "("+first_pipe+")"+\
+                        #       "("+present+")"+\
+                        #       "("+second_pipe+")"+\
+                        #       "("+speaker_code+")"
                         comparison = self.check_code(clan_code, speaker_code)
-                        print "comparison: " + str(comparison)
-                        print
+                        #print "comparison: " + str(comparison)
+                        # print
                         interval = interval_regx.search(line).group(1).split("_")
-                        self.entries.append((clan_code, speaker_code, comparison, interval[0], interval[1]))
+                        self.entries.append((clan_code,
+                                             speaker_code,
+                                             comparison,
+                                             interval[0],
+                                             interval[1]))
 
         print " % correct: " + str(self.calc_stats())
+
 
     def check_code(self, clan_code, entry_code):
         if clan_code in clan_codes['male']:
@@ -199,10 +217,22 @@ class ClanFile:
 
         return percent_correct
 
+    def export(self):
+
+        with open(self.out_path, "w") as file:
+            writer = csv.writer(file)
+            writer.writerow(["clan_code", "speaker_code", "matched", "onset", "offset"])
+            for entry in self.entries:
+                writer.writerow([entry[0],
+                                entry[1],
+                                entry[2],
+                                entry[3],
+                                entry[4]])
 class ClanDir:
 
-    def __init__(self, path):
-        self.clandir_path = path
+    def __init__(self, path, output_path):
+        self.clandir_path = path        # the directory where all the clan files live
+        self.out_path = output_path     # this is the directory to put exported csv's in
         self.clan_filepaths = []
 
         for root, dirs, files in os.walk(os.path.abspath(self.clandir_path)):
@@ -213,13 +243,26 @@ class ClanDir:
         self.clan_files = []
 
         for path in self.clan_filepaths:
-            self.clan_files.append(ClanFile(path))
+            out_name = os.path.splitext(path)[0]
+            out_name = os.path.split(out_name)[1] + "_clanstats.csv"
+            out_filepath = os.path.join(self.out_path, out_name)
+            self.clan_files.append(ClanFile(path, out_filepath))
 
+        self.build_clanfiles()
+        self.export_csvs()
 
     def build_clanfiles(self):
-
+        print "hello there person"
         for path in self.clan_filepaths:
-            self.clan_files.append(ClanFile(path))
+            out_name = os.path.splitext(path)[0]
+            out_name = os.path.split(out_name)[1] + "_clanstats.csv"
+            print out_name
+            print "joined put path: " + os.path.join(self.out_path, out_name)
+            self.clan_files.append(ClanFile(path, os.path.join(self.out_path, out_name)))
+
+    def export_csvs(self):
+        for clan_file in self.clan_files:
+            clan_file.export()
 
 
 
@@ -228,7 +271,7 @@ def print_usage():
     print "You can run clanstats on a single clan file, or a"
     print "directory containing many clan files. \n"
     print "$ python clanstats.py /path/to/clanfile.cex /path/to/output.csv\n\nor..."
-    print "\n$ python clanstats.py /path/to/clanfile-directory/ /path/to/output.csv"
+    print "\n$ python clanstats.py /path/to/clanfile-directory/ /path/to/output-directory"
 
 
 if __name__ == "__main__":
@@ -241,9 +284,9 @@ if __name__ == "__main__":
 
     # handle single files and directories differently
 
-    if sys.argv[1].endswith(".cex"):    # single file
-        clan_file = ClanFile(sys.argv[1])
-    else:                               # directory
-        clan_dir = ClanDir(sys.argv[1])
+    if sys.argv[1].endswith(".cex"):                # single file
+        clan_file = ClanFile(sys.argv[1], sys.argv[2])
+    else:                                           # directory
+        clan_dir = ClanDir(sys.argv[1], sys.argv[2])
 
 
