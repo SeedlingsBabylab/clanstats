@@ -112,7 +112,7 @@ artificial_codes = [
                 "RAD",  # radio
                 "CAR",  # car voice
                 "TVS",  # youtube characters
-                #"ATV"
+                "ATV"
 
                 ]
 
@@ -534,11 +534,11 @@ class ClanFile:
             file.write("artificial_count: {}\n\n\n".format(self.artificial_count))
 
 
-            file.write("Incorrect child distribution:        {}\n".format(self.incorrect_child_dist.items()))
-            file.write("Incorrect adult distribution:        {}\n".format(self.incorrect_adult_dist.items()))
-            file.write("Incorrect female distribution:       {}\n".format(self.incorrect_female_dist.items()))
-            file.write("Incorrect male distribution:         {}\n".format(self.incorrect_male_dist.items()))
-            file.write("Incorrect artificial distribution:   {}\n".format(self.incorrect_artificial_dist.items()))
+            file.write("Incorrect child distribution:        {}\n".format(self.incorrect_child_dist.most_common()))
+            file.write("Incorrect adult distribution:        {}\n".format(self.incorrect_adult_dist.most_common()))
+            file.write("Incorrect female distribution:       {}\n".format(self.incorrect_female_dist.most_common()))
+            file.write("Incorrect male distribution:         {}\n".format(self.incorrect_male_dist.most_common()))
+            file.write("Incorrect artificial distribution:   {}\n".format(self.incorrect_artificial_dist.most_common()))
 
 class ClanDir:
     def __init__(self, path, output_path, window_size):

@@ -7,7 +7,7 @@ male_count: 1017
 artificial_count: 0
 
 
-Incorrect child distribution:        [('OLF', 2), ('OLN', 37), ('TVN', 2), ('FAN', 28), ('TVF', 2), ('FAF', 1), ('MAN', 5)]
+Incorrect child distribution:        [('OLN', 37), ('FAN', 28), ('MAN', 5), ('OLF', 2), ('TVN', 2), ('TVF', 2), ('FAF', 1)]
 Incorrect adult distribution:        [('OLF', 8), ('NOF', 7), ('CHN', 60), ('TVN', 5), ('OLN', 77), ('CXF', 1), ('TVF', 4), ('CXN', 50), ('SIL', 1)]
 Incorrect female distribution:       [('OLF', 5), ('SIL', 1), ('NOF', 3), ('CHN', 30), ('TVN', 4), ('OLN', 33), ('CXF', 1), ('TVF', 1), ('CXN', 34), ('MAN', 4)]
 Incorrect male distribution:         [('OLF', 3), ('NOF', 4), ('CHN', 30), ('TVN', 1), ('FAN', 227), ('OLN', 44), ('TVF', 3), ('CXN', 16)]
