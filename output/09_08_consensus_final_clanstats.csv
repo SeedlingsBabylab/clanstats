@@ -1,0 +1,14 @@
+total_annotations: 607
+
+child_count: 0
+adult_count: 328
+female_count: 250
+male_count: 78
+artificial_count: 279
+
+
+Incorrect child distribution:        []
+Incorrect adult distribution:        [('CXN', 7), ('OLF', 2), ('CHN', 22), ('OLN', 44)]
+Incorrect female distribution:       [('CXN', 5), ('CHN', 22), ('OLN', 36), ('MAN', 27)]
+Incorrect male distribution:         [('CXN', 2), ('FAN', 7), ('OLF', 2), ('OLN', 8)]
+Incorrect artificial distribution:   [('CHF', 1), ('OLF', 32), ('NOF', 1), ('CHN', 20), ('FAN', 17), ('OLN', 55), ('CXF', 6), ('MAF', 8), ('SIL', 1), ('FAF', 1), ('CXN', 76), ('MAN', 24)]
