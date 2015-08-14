@@ -7,6 +7,12 @@ male_count: 78
 artificial_count: 279
 
 
+Correct child distribution:        []
+Correct adult distribution:        [('FAN', 166), ('MAN', 86), ('FAF', 1)]
+Correct female distribution:       [('FAN', 159), ('FAF', 1)]
+Correct male distribution:         [('MAN', 59)]
+Correct artificial distribution:   [('TVN', 22), ('TVF', 15)]
+
 Incorrect child distribution:        []
 Incorrect adult distribution:        [('OLN', 44), ('CHN', 22), ('CXN', 7), ('OLF', 2)]
 Incorrect female distribution:       [('OLN', 36), ('MAN', 27), ('CHN', 22), ('CXN', 5)]

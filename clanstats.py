@@ -176,6 +176,12 @@ class ClanFile:
         self.incorrect_female_dist = []
         self.incorrect_artificial_dist = []
 
+        self.correct_adult_dist  = []
+        self.correct_child_dist  = []
+        self.correct_male_dist   = []
+        self.correct_female_dist = []
+        self.correct_artificial_dist = []
+
 
         self.adult_table = []
         self.child_table = []
@@ -201,6 +207,12 @@ class ClanFile:
         self.incorrect_female_dist = self.count_incorrect(self.incorrect_female)
         self.incorrect_male_dist = self.count_incorrect(self.incorrect_male)
         self.incorrect_artificial_dist = self.count_incorrect(self.incorrect_artificial)
+
+        self.correct_adult_dist = self.count_correct(self.correct_adult)
+        self.correct_child_dist = self.count_correct(self.correct_child)
+        self.correct_female_dist = self.count_correct(self.correct_female)
+        self.correct_male_dist = self.count_correct(self.correct_male)
+        self.correct_artificial_dist = self.count_correct(self.correct_artificial)
 
         print self.incorrect_adult_dist
         print self.incorrect_child_dist
@@ -484,6 +496,13 @@ class ClanFile:
         result = Counter(uncounted)
         return result
 
+    def count_correct(self, correct):
+        uncounted = []
+        for entry in correct:
+            uncounted.append(entry[0][0][0])
+        result = Counter(uncounted)
+        return result
+
     def calc_stats(self):
         num_true = 0
         num_false = 0
@@ -533,6 +552,11 @@ class ClanFile:
             file.write("male_count: {}\n".format(self.male_count))
             file.write("artificial_count: {}\n\n\n".format(self.artificial_count))
 
+            file.write("Correct child distribution:        {}\n".format(self.correct_child_dist.most_common()))
+            file.write("Correct adult distribution:        {}\n".format(self.correct_adult_dist.most_common()))
+            file.write("Correct female distribution:       {}\n".format(self.correct_female_dist.most_common()))
+            file.write("Correct male distribution:         {}\n".format(self.correct_male_dist.most_common()))
+            file.write("Correct artificial distribution:   {}\n\n".format(self.correct_artificial_dist.most_common()))
 
             file.write("Incorrect child distribution:        {}\n".format(self.incorrect_child_dist.most_common()))
             file.write("Incorrect adult distribution:        {}\n".format(self.incorrect_adult_dist.most_common()))
