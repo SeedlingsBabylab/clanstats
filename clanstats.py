@@ -334,8 +334,7 @@ class ClanFile:
                     continue
 
     def process_window(self, current, window):
-        #print current
-        #print current[0][1]
+
 
         self.windows.append((current, window))
 
@@ -350,65 +349,45 @@ class ClanFile:
             self.child_count += 1
 
             if child_result:
-                self.correct_child.append((current, window))
+                self.correct_child.append((current, child_result[1], window))
             else:
                 self.incorrect_child.append((current, window))
-            #print "child comparison:"
-            #print str(window) + "  " + str(child_result)
-            #print
 
         if current[0][1] in adult_codes:
             adult_result = self.analyze_adult(current, window)
             self.adult_count += 1
 
-
             if adult_result:
-                self.correct_adult.append((current, window))
+                self.correct_adult.append((current, adult_result[1], window))
             else:
                 self.incorrect_adult.append((current, window))
-
-            #print "adult comparison:"
-            #print str(window) + " " + str(adult_result)
-            #print
 
         if current[0][1] in male_codes:
             male_result = self.analyze_male(current, window)
             self.male_count += 1
 
             if male_result:
-                self.correct_male.append((current, window))
+                self.correct_male.append((current, male_result[1], window))
             else:
                 self.incorrect_male.append((current, window))
-
-            #print "male comparison: "
-            #print str(window) + " " + str(male_result)
-            #print
 
         if current[0][1] in female_codes:
             female_result = self.analyze_female(current, window)
             self.female_count += 1
 
-
             if female_result:
-                self.correct_female.append((current, window))
+                self.correct_female.append((current, female_result[1], window))
             else:
                 self.incorrect_female.append((current, window))
-            #print "female comparison: "
-            #print str(window) + " " + str(female_result)
-            #print
 
         if current[0][1] in artificial_codes:
             artificial_result = self.analyze_artificial(current, window)
             self.artificial_count += 1
 
-
             if artificial_result:
-                self.correct_artificial.append((current, window))
+                self.correct_artificial.append((current, artificial_result[1], window))
             else:
                 self.incorrect_artificial.append((current, window))
-            #print "artificial comparison: "
-            #print str(window) + " " + str(artificial_result)
-            #print
 
         elif current[0][1] in clan_codes["noise"]:
             print "noise comparison"
@@ -422,9 +401,12 @@ class ClanFile:
             else:
                 results[index] = False
 
-        #print results
+
         if True in results:
-            return True
+            if curr_entry[0][0] in clan_codes["child"]:
+                return (True, curr_entry)
+            else:
+                return (True, window[results.index(True)])
         else:
             return False
 
@@ -436,9 +418,12 @@ class ClanFile:
                 results[index] = True
             else:
                 results[index] = False
-        #print results
+
         if True in results:
-            return True
+            if curr_entry[0][0] in clan_codes["adult"]:
+                return (True, curr_entry)
+            else:
+                return (True, window[results.index(True)])
         else:
             return False
 
@@ -450,9 +435,12 @@ class ClanFile:
                 results[index] = True
             else:
                 results[index] = False
-        #print results
+
         if True in results:
-            return True
+            if curr_entry[0][0] in clan_codes["male"]:
+                return (True, curr_entry)
+            else:
+                return (True, window[results.index(True)])
         else:
             return False
 
@@ -464,9 +452,11 @@ class ClanFile:
                 results[index] = True
             else:
                 results[index] = False
-        #print results
         if True in results:
-            return True
+            if curr_entry[0][0] in clan_codes["female"]:
+                return (True, curr_entry)
+            else:
+                return (True, window[results.index(True)])
         else:
             return False
 
@@ -478,9 +468,12 @@ class ClanFile:
                 results[index] = True
             else:
                 results[index] = False
-        #print results
+
         if True in results:
-            return True
+            if curr_entry[0][0] in clan_codes["artificial"]:
+                return (True, curr_entry)
+            else:
+                return (True, window[results.index(True)])
         else:
             return False
 
@@ -494,7 +487,7 @@ class ClanFile:
     def count_correct(self, correct):
         uncounted = []
         for entry in correct:
-            uncounted.append(entry[0][0][0])
+            uncounted.append(entry[1][0][0])
         result = Counter(uncounted)
         return result
 
@@ -573,20 +566,20 @@ class ClanFile:
             file.write("artificial: {}\n\n\n".format(self.artificial_count))
 
 
-            file.write("Speakers: {}\n\n".format(self.speakers))
+            file.write("speakers: {}\n\n".format(self.speakers))
 
 
-            file.write("Correct child distribution:        {}\n".format(self.correct_child_dist.most_common()))
-            file.write("Correct adult distribution:        {}\n".format(self.correct_adult_dist.most_common()))
-            file.write("Correct female distribution:       {}\n".format(self.correct_female_dist.most_common()))
-            file.write("Correct male distribution:         {}\n".format(self.correct_male_dist.most_common()))
-            file.write("Correct artificial distribution:   {}\n\n".format(self.correct_artificial_dist.most_common()))
+            file.write("correct_child_distribution:        {}\n".format(self.correct_child_dist.most_common()))
+            file.write("correct_adult_distribution:        {}\n".format(self.correct_adult_dist.most_common()))
+            file.write("correct_female_distribution:       {}\n".format(self.correct_female_dist.most_common()))
+            file.write("correct_male_distribution:         {}\n".format(self.correct_male_dist.most_common()))
+            file.write("correct_artificial_distribution:   {}\n\n".format(self.correct_artificial_dist.most_common()))
 
-            file.write("Incorrect child distribution:        {}\n".format(self.incorrect_child_dist.most_common()))
-            file.write("Incorrect adult distribution:        {}\n".format(self.incorrect_adult_dist.most_common()))
-            file.write("Incorrect female distribution:       {}\n".format(self.incorrect_female_dist.most_common()))
-            file.write("Incorrect male distribution:         {}\n".format(self.incorrect_male_dist.most_common()))
-            file.write("Incorrect artificial distribution:   {}\n".format(self.incorrect_artificial_dist.most_common()))
+            file.write("incorrect_child_distribution:        {}\n".format(self.incorrect_child_dist.most_common()))
+            file.write("incorrect_adult_distribution:        {}\n".format(self.incorrect_adult_dist.most_common()))
+            file.write("incorrect_female_distribution:       {}\n".format(self.incorrect_female_dist.most_common()))
+            file.write("incorrect_male_distribution:         {}\n".format(self.incorrect_male_dist.most_common()))
+            file.write("incorrect_artificial_distribution:   {}\n".format(self.incorrect_artificial_dist.most_common()))
 
 
 
