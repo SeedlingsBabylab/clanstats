@@ -170,6 +170,7 @@ class ClanFile:
         self.incorrect_female = []
         self.incorrect_artificial = []
 
+
         self.incorrect_adult_dist  = []
         self.incorrect_child_dist  = []
         self.incorrect_male_dist   = []
@@ -183,10 +184,6 @@ class ClanFile:
         self.correct_artificial_dist = []
 
 
-        self.adult_table = []
-        self.child_table = []
-        self.male_table = []
-        self.female_table = []
 
         self.interval_regx = re.compile("(\d+_\d+)")
 
@@ -214,16 +211,20 @@ class ClanFile:
         self.correct_male_dist = self.count_correct(self.correct_male)
         self.correct_artificial_dist = self.count_correct(self.correct_artificial)
 
+        self.speakers = Counter([entry[0][0][1] for entry in self.windows]).most_common()
+
+
+        print "speakers: {}".format(self.speakers)
+
+
         print self.incorrect_adult_dist
         print self.incorrect_child_dist
         print self.incorrect_female_dist
         print self.incorrect_male_dist
         print self.incorrect_artificial_dist
 
-        self.export()
+        self.export2()
 
-        #self.analyze_windows()
-        self.speaker_match = None   # percent correct speaker codes
 
     def parse_clan(self):
         last_line = ""
@@ -239,7 +240,7 @@ class ClanFile:
                     multi_line = ""
                     clan_code = line[1:4]
                     entries = self.entry_regx.findall(line)
-                    print line
+                    #print line
                     interval_regx_result = self.interval_regx.search(line)
 
                     if interval_regx_result is None:
@@ -256,6 +257,10 @@ class ClanFile:
                         entries = self.entry_regx.findall(line)
 
                         interval = interval_regx_result.group().split("_")
+
+                if line.startswith("%com"):
+                    continue
+
                 if entries:
                     temp = [None] * len(entries)
                     for index, entry in enumerate(entries):
@@ -279,11 +284,6 @@ class ClanFile:
                                       interval[0],
                                       interval[1])])
 
-            # #print self.lines
-            # with open("test_out.txt", "w") as file:
-            #     for line in self.lines:
-            #         file.write(str(line) + "\n")
-
     def build_windows(self):
 
         window = [None] * self.window_size
@@ -293,11 +293,8 @@ class ClanFile:
         end = self.window_size + 1
 
         while current < len(self.lines):
-            #print self.lines[current]
-            #print "start: {}\ncurrent:   {} -    {}\nend: {}".format(start, current, self.lines[current], end)
             if current < self.window_size:
                 window = self.lines[start:end]
-                #print "window: {}\n".format(window)
 
                 if self.lines[current][0][1] == "NA":
                     current += 1
@@ -311,7 +308,6 @@ class ClanFile:
 
             elif current + self.window_size == len(self.lines):
                 window = self.lines[start:end]
-                #print "window: {}\n".format(window)
 
                 if self.lines[current][0][1] == "NA":
                     current += 1
@@ -324,7 +320,6 @@ class ClanFile:
                     continue
             else:
                 window = self.lines[start:end]
-                #print "window: {}\n".format(window)
 
                 if self.lines[current][0][1] == "NA":
                     current += 1
@@ -339,8 +334,8 @@ class ClanFile:
                     continue
 
     def process_window(self, current, window):
-        print current
-        print current[0][1]
+        #print current
+        #print current[0][1]
 
         self.windows.append((current, window))
 
@@ -358,9 +353,9 @@ class ClanFile:
                 self.correct_child.append((current, window))
             else:
                 self.incorrect_child.append((current, window))
-            print "child comparison:"
-            print str(window) + "  " + str(child_result)
-            print
+            #print "child comparison:"
+            #print str(window) + "  " + str(child_result)
+            #print
 
         if current[0][1] in adult_codes:
             adult_result = self.analyze_adult(current, window)
@@ -372,9 +367,9 @@ class ClanFile:
             else:
                 self.incorrect_adult.append((current, window))
 
-            print "adult comparison:"
-            print str(window) + " " + str(adult_result)
-            print
+            #print "adult comparison:"
+            #print str(window) + " " + str(adult_result)
+            #print
 
         if current[0][1] in male_codes:
             male_result = self.analyze_male(current, window)
@@ -385,9 +380,9 @@ class ClanFile:
             else:
                 self.incorrect_male.append((current, window))
 
-            print "male comparison: "
-            print str(window) + " " + str(male_result)
-            print
+            #print "male comparison: "
+            #print str(window) + " " + str(male_result)
+            #print
 
         if current[0][1] in female_codes:
             female_result = self.analyze_female(current, window)
@@ -398,9 +393,9 @@ class ClanFile:
                 self.correct_female.append((current, window))
             else:
                 self.incorrect_female.append((current, window))
-            print "female comparison: "
-            print str(window) + " " + str(female_result)
-            print
+            #print "female comparison: "
+            #print str(window) + " " + str(female_result)
+            #print
 
         if current[0][1] in artificial_codes:
             artificial_result = self.analyze_artificial(current, window)
@@ -411,9 +406,9 @@ class ClanFile:
                 self.correct_artificial.append((current, window))
             else:
                 self.incorrect_artificial.append((current, window))
-            print "artificial comparison: "
-            print str(window) + " " + str(artificial_result)
-            print
+            #print "artificial comparison: "
+            #print str(window) + " " + str(artificial_result)
+            #print
 
         elif current[0][1] in clan_codes["noise"]:
             print "noise comparison"
@@ -563,6 +558,39 @@ class ClanFile:
             file.write("Incorrect female distribution:       {}\n".format(self.incorrect_female_dist.most_common()))
             file.write("Incorrect male distribution:         {}\n".format(self.incorrect_male_dist.most_common()))
             file.write("Incorrect artificial distribution:   {}\n".format(self.incorrect_artificial_dist.most_common()))
+
+
+    def export2(self):
+
+        with open(self.out_path, "w") as file:
+            writer = csv.writer(file)
+
+            file.write("total: {}\n\n".format(len(self.windows)))
+            file.write("child: {}\n".format(self.child_count))
+            file.write("adult: {}\n".format(self.adult_count))
+            file.write("female: {}\n".format(self.female_count))
+            file.write("male: {}\n".format(self.male_count))
+            file.write("artificial: {}\n\n\n".format(self.artificial_count))
+
+
+            file.write("Speakers: {}\n\n".format(self.speakers))
+
+
+            file.write("Correct child distribution:        {}\n".format(self.correct_child_dist.most_common()))
+            file.write("Correct adult distribution:        {}\n".format(self.correct_adult_dist.most_common()))
+            file.write("Correct female distribution:       {}\n".format(self.correct_female_dist.most_common()))
+            file.write("Correct male distribution:         {}\n".format(self.correct_male_dist.most_common()))
+            file.write("Correct artificial distribution:   {}\n\n".format(self.correct_artificial_dist.most_common()))
+
+            file.write("Incorrect child distribution:        {}\n".format(self.incorrect_child_dist.most_common()))
+            file.write("Incorrect adult distribution:        {}\n".format(self.incorrect_adult_dist.most_common()))
+            file.write("Incorrect female distribution:       {}\n".format(self.incorrect_female_dist.most_common()))
+            file.write("Incorrect male distribution:         {}\n".format(self.incorrect_male_dist.most_common()))
+            file.write("Incorrect artificial distribution:   {}\n".format(self.incorrect_artificial_dist.most_common()))
+
+
+
+
 
 class ClanDir:
     def __init__(self, path, output_path, window_size):

@@ -1,0 +1,22 @@
+total: 305
+
+child: 3
+adult: 299
+female: 234
+male: 65
+artificial: 3
+
+
+Speakers: [('MOT', 223), ('FAT', 65), ('MTY', 11), ('SIS', 3), ('TOY', 3)]
+
+Correct child distribution:        [('CXN', 1)]
+Correct adult distribution:        [('FAN', 145), ('MAN', 46), ('FAF', 7), ('MAF', 2)]
+Correct female distribution:       [('FAN', 139), ('FAF', 5)]
+Correct male distribution:         [('MAN', 32), ('MAF', 2)]
+Correct artificial distribution:   []
+
+Incorrect child distribution:        [('FAN', 1), ('OLN', 1)]
+Incorrect adult distribution:        [('OLN', 66), ('CXN', 9), ('CHN', 8), ('NOF', 7), ('TVN', 5), ('OLF', 3), ('NON', 1)]
+Incorrect female distribution:       [('OLN', 53), ('MAN', 14), ('CXN', 9), ('CHN', 7), ('OLF', 3), ('NOF', 2), ('TVN', 2)]
+Incorrect male distribution:         [('OLN', 13), ('FAN', 6), ('NOF', 5), ('TVN', 3), ('FAF', 2), ('NON', 1), ('CHN', 1)]
+Incorrect artificial distribution:   [('OLN', 2), ('FAN', 1)]

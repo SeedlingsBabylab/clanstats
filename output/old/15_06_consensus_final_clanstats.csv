@@ -1,0 +1,19 @@
+total_annotations: 1796
+
+child_count: 289
+adult_count: 1504
+female_count: 487
+male_count: 1017
+artificial_count: 0
+
+
+Correct child distribution:        [('OLN', 37), ('FAN', 28), ('MAN', 5), ('OLF', 2), ('TVN', 2), ('TVF', 2), ('FAF', 1)]
+Correct adult distribution:        [('OLN', 77), ('CHN', 60), ('CXN', 50), ('OLF', 8), ('NOF', 7), ('TVN', 5), ('TVF', 4), ('CXF', 1), ('SIL', 1)]
+Correct female distribution:       [('CXN', 34), ('OLN', 33), ('CHN', 30), ('OLF', 5), ('TVN', 4), ('MAN', 4), ('NOF', 3), ('SIL', 1), ('CXF', 1), ('TVF', 1)]
+Correct male distribution:         [('FAN', 227), ('OLN', 44), ('CHN', 30), ('CXN', 16), ('NOF', 4), ('OLF', 3), ('TVF', 3), ('TVN', 1)]
+Correct artificial distribution:   []
+Incorrect child distribution:        [('OLN', 37), ('FAN', 28), ('MAN', 5), ('OLF', 2), ('TVN', 2), ('TVF', 2), ('FAF', 1)]
+Incorrect adult distribution:        [('OLN', 77), ('CHN', 60), ('CXN', 50), ('OLF', 8), ('NOF', 7), ('TVN', 5), ('TVF', 4), ('CXF', 1), ('SIL', 1)]
+Incorrect female distribution:       [('CXN', 34), ('OLN', 33), ('CHN', 30), ('OLF', 5), ('TVN', 4), ('MAN', 4), ('NOF', 3), ('SIL', 1), ('CXF', 1), ('TVF', 1)]
+Incorrect male distribution:         [('FAN', 227), ('OLN', 44), ('CHN', 30), ('CXN', 16), ('NOF', 4), ('OLF', 3), ('TVF', 3), ('TVN', 1)]
+Incorrect artificial distribution:   []
