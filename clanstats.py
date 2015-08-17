@@ -183,8 +183,6 @@ class ClanFile:
         self.correct_female_dist = []
         self.correct_artificial_dist = []
 
-
-
         self.interval_regx = re.compile("(\d+_\d+)")
 
         re1 ='(&)'	             # ampersand
@@ -223,7 +221,7 @@ class ClanFile:
         print self.incorrect_male_dist
         print self.incorrect_artificial_dist
 
-        self.export2()
+        self.export()
 
 
     def parse_clan(self):
@@ -491,99 +489,33 @@ class ClanFile:
         result = Counter(uncounted)
         return result
 
-    def calc_stats(self):
-        num_true = 0
-        num_false = 0
-
-        # get basic true/false counts
-        for entry in self.entries:
-            if entry[2] is True:
-                num_true += 1
-            else:
-                num_false += 1
-
-        percent_correct = float(num_true)/self.entry_count
-
-        # load all the incorrect matches into this list
-        for entry in self.entries:
-            if entry[2] is False:
-                self.false_entries.append(entry)
-
-        # count all the *adult* male-female mismatches
-        adult_gender_mismatch_count = 0
-        adult_gender_mismatch_list = []
-        for entry in self.false_entries:
-            if entry[0] in clan_codes['male']\
-                and entry[1] not in child_codes\
-                and entry[1] in female_codes:
-                    adult_gender_mismatch_count += 1
-                    adult_gender_mismatch_list.append(entry)
-            elif entry[0] in clan_codes['female']\
-                and entry[1] not in child_codes\
-                and entry[1] in male_codes:
-                adult_gender_mismatch_count += 1
-                adult_gender_mismatch_list.append(entry)
-
-        # print adult_gender_mismatch_count
-        # print adult_gender_mismatch_list
-        return percent_correct
-
     def export(self):
 
         with open(self.out_path, "w") as file:
             writer = csv.writer(file)
 
-            file.write("total_annotations: {}\n\n".format(len(self.windows)))
-            file.write("child_count: {}\n".format(self.child_count))
-            file.write("adult_count: {}\n".format(self.adult_count))
-            file.write("female_count: {}\n".format(self.female_count))
-            file.write("male_count: {}\n".format(self.male_count))
-            file.write("artificial_count: {}\n\n\n".format(self.artificial_count))
-
-            file.write("Correct child distribution:        {}\n".format(self.correct_child_dist.most_common()))
-            file.write("Correct adult distribution:        {}\n".format(self.correct_adult_dist.most_common()))
-            file.write("Correct female distribution:       {}\n".format(self.correct_female_dist.most_common()))
-            file.write("Correct male distribution:         {}\n".format(self.correct_male_dist.most_common()))
-            file.write("Correct artificial distribution:   {}\n\n".format(self.correct_artificial_dist.most_common()))
-
-            file.write("Incorrect child distribution:        {}\n".format(self.incorrect_child_dist.most_common()))
-            file.write("Incorrect adult distribution:        {}\n".format(self.incorrect_adult_dist.most_common()))
-            file.write("Incorrect female distribution:       {}\n".format(self.incorrect_female_dist.most_common()))
-            file.write("Incorrect male distribution:         {}\n".format(self.incorrect_male_dist.most_common()))
-            file.write("Incorrect artificial distribution:   {}\n".format(self.incorrect_artificial_dist.most_common()))
+            file.write("total:\t{}\n\n".format(len(self.windows)))
+            file.write("child:\t{}\n".format(self.child_count))
+            file.write("adult:\t{}\n".format(self.adult_count))
+            file.write("female:\t{}\n".format(self.female_count))
+            file.write("male:\t{}\n".format(self.male_count))
+            file.write("artificial:\t{}\n\n\n".format(self.artificial_count))
 
 
-    def export2(self):
-
-        with open(self.out_path, "w") as file:
-            writer = csv.writer(file)
-
-            file.write("total: {}\n\n".format(len(self.windows)))
-            file.write("child: {}\n".format(self.child_count))
-            file.write("adult: {}\n".format(self.adult_count))
-            file.write("female: {}\n".format(self.female_count))
-            file.write("male: {}\n".format(self.male_count))
-            file.write("artificial: {}\n\n\n".format(self.artificial_count))
+            file.write("speakers:\t{}\n\n".format(self.speakers))
 
 
-            file.write("speakers: {}\n\n".format(self.speakers))
+            file.write("correct_child_distribution:\t{}\n".format(self.correct_child_dist.most_common()))
+            file.write("correct_adult_distribution:\t{}\n".format(self.correct_adult_dist.most_common()))
+            file.write("correct_female_distribution:\t{}\n".format(self.correct_female_dist.most_common()))
+            file.write("correct_male_distribution:\t{}\n".format(self.correct_male_dist.most_common()))
+            file.write("correct_artificial_distribution:\t{}\n\n".format(self.correct_artificial_dist.most_common()))
 
-
-            file.write("correct_child_distribution:        {}\n".format(self.correct_child_dist.most_common()))
-            file.write("correct_adult_distribution:        {}\n".format(self.correct_adult_dist.most_common()))
-            file.write("correct_female_distribution:       {}\n".format(self.correct_female_dist.most_common()))
-            file.write("correct_male_distribution:         {}\n".format(self.correct_male_dist.most_common()))
-            file.write("correct_artificial_distribution:   {}\n\n".format(self.correct_artificial_dist.most_common()))
-
-            file.write("incorrect_child_distribution:        {}\n".format(self.incorrect_child_dist.most_common()))
-            file.write("incorrect_adult_distribution:        {}\n".format(self.incorrect_adult_dist.most_common()))
-            file.write("incorrect_female_distribution:       {}\n".format(self.incorrect_female_dist.most_common()))
-            file.write("incorrect_male_distribution:         {}\n".format(self.incorrect_male_dist.most_common()))
-            file.write("incorrect_artificial_distribution:   {}\n".format(self.incorrect_artificial_dist.most_common()))
-
-
-
-
+            file.write("incorrect_child_distribution:\t{}\n".format(self.incorrect_child_dist.most_common()))
+            file.write("incorrect_adult_distribution:\t{}\n".format(self.incorrect_adult_dist.most_common()))
+            file.write("incorrect_female_distribution:\t{}\n".format(self.incorrect_female_dist.most_common()))
+            file.write("incorrect_male_distribution:\t{}\n".format(self.incorrect_male_dist.most_common()))
+            file.write("incorrect_artificial_distribution:\t{}\n".format(self.incorrect_artificial_dist.most_common()))
 
 class ClanDir:
     def __init__(self, path, output_path, window_size):
