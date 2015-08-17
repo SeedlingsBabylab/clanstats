@@ -45,6 +45,13 @@ male_codes = [
                 "AM4",  # adult male
                 "GUN",  # great uncle
                 "FTB",  # father and brother in unison
+                "MAN",
+                "AUD",
+                "LMV",   # live male voice
+                "MF2",  # male family friends 2-4
+                "MF3",
+                "MF4",
+                "MF5"
             ]
 
 female_codes = [
@@ -78,6 +85,13 @@ female_codes = [
                 #"SI2",  # sister 2
                 "MT2",  # other mother
                 "MTT",  # moms together in unison
+                "LVF", # live voice female
+                "FF2",  # female family friends 2-5
+                "FF3",
+                "FF4",
+                "FF5",
+                "UF1",   # unknown female
+                "UF2"
 
             ]
 
@@ -96,6 +110,9 @@ child_codes = [
                 "CO2",  # cousin 2
                 "CO3",  # cousin 3
                 "KID",  # friend's child
+                "MCH",   # male child (07_07)
+                "COU",   # cousin
+                "STY"   # sister/toy in unison
             ]
 
 male_female_codes = [
@@ -105,7 +122,11 @@ male_female_codes = [
 
 
 just_adult_codes = [
-                "AD1"
+                "AD1",
+                "ADU",
+                "ADU2",
+                "NB1"
+
 ]
 
 adult_codes = male_codes + female_codes + just_adult_codes
@@ -114,6 +135,7 @@ adult_codes = male_codes + female_codes + just_adult_codes
 
 artificial_codes = [
                 "TOY",  # toy
+                "TOYS",
                 "TVN",  # TV/radio/CD/etc...
                 "TVF",  # TV female
                 "RAD",  # radio

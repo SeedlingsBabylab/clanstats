@@ -1,0 +1,22 @@
+total:	727
+
+child:	0
+adult:	569
+female:	548
+male:	21
+artificial:	158
+
+
+speakers:	[('GRM', 289), ('MOT', 235), ('TOY', 145), ('GTY', 24), ('FAT', 18), ('TVS', 12), ('UNC', 3), ('TOYS', 1)]
+
+correct_child_distribution:	[]
+correct_adult_distribution:	[('FAN', 316), ('MAN', 40), ('MAF', 8), ('FAF', 4)]
+correct_female_distribution:	[('FAN', 315), ('FAF', 4)]
+correct_male_distribution:	[('MAN', 9)]
+correct_artificial_distribution:	[('TVN', 19), ('TVF', 5)]
+
+incorrect_child_distribution:	[]
+incorrect_adult_distribution:	[('OLN', 108), ('CHN', 30), ('CXN', 25), ('TVN', 17), ('OLF', 10), ('TVF', 5), ('NOF', 4), ('SIL', 2)]
+incorrect_female_distribution:	[('OLN', 100), ('MAN', 31), ('CHN', 27), ('CXN', 25), ('TVN', 17), ('OLF', 10), ('MAF', 8), ('TVF', 5), ('NOF', 4), ('SIL', 2)]
+incorrect_male_distribution:	[('OLN', 8), ('CHN', 3), ('FAN', 1)]
+incorrect_artificial_distribution:	[('OLN', 55), ('CXN', 27), ('FAN', 19), ('CHN', 18), ('OLF', 7), ('MAN', 4), ('MAF', 2), ('NON', 1), ('NOF', 1)]

@@ -1,0 +1,22 @@
+total:	0
+
+child:	0
+adult:	0
+female:	0
+male:	0
+artificial:	0
+
+
+speakers:	[]
+
+correct_child_distribution:	[]
+correct_adult_distribution:	[]
+correct_female_distribution:	[]
+correct_male_distribution:	[]
+correct_artificial_distribution:	[]
+
+incorrect_child_distribution:	[]
+incorrect_adult_distribution:	[]
+incorrect_female_distribution:	[]
+incorrect_male_distribution:	[]
+incorrect_artificial_distribution:	[]
