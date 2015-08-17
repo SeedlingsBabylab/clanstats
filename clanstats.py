@@ -103,7 +103,14 @@ male_female_codes = [
 
                     ]
 
-adult_codes = male_codes + female_codes
+
+just_adult_codes = [
+                "AD1"
+]
+
+adult_codes = male_codes + female_codes + just_adult_codes
+
+
 
 artificial_codes = [
                 "TOY",  # toy
@@ -125,7 +132,7 @@ overlap_codes = [
 
 
 all_codes = male_codes + female_codes + male_female_codes +\
-            child_codes + artificial_codes + overlap_codes
+            child_codes + artificial_codes + overlap_codes + just_adult_codes
 
 class ClanFile:
 
@@ -190,7 +197,7 @@ class ClanFile:
         re3 ='(\\|)'	         # first pipe
         re4 ='(.)'	             # object present
         re5 ='(\\|)'	         # second pipe
-        re6 ='((?:[a-z][a-z]+))' # speaker code
+        re6 ='((?:[a-z][a-z0-9_]*))' # speaker code
 
         self.entry_regx = re.compile(re1+re2+re3+re4+re5+re6, re.IGNORECASE | re.DOTALL)
 
