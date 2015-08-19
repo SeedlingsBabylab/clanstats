@@ -1,0 +1,25 @@
+total:	550
+
+child:	201
+adult:	347
+female:	141
+male:	206
+artificial:	2
+overlap:	0
+
+
+speakers:	[('FAT', 204), ('MOT', 141), ('SIS', 79), ('BRO', 79), ('SIB', 30), ('BR2', 6), ('SI1', 4), ('SI2', 2), ('GRP', 2), ('TVN', 2), ('BR1', 1)]
+
+correct_child_distribution:	[('CXN', 110), ('CHN', 24), ('CXF', 1)]
+correct_adult_distribution:	[('MAN', 144), ('FAN', 117), ('FAF', 1), ('MAF', 1)]
+correct_female_distribution:	[('FAN', 92)]
+correct_male_distribution:	[('MAN', 137), ('MAF', 1)]
+correct_artificial_distribution:	[]
+correct_overlap_distribution:	[]
+
+incorrect_child_distribution:	[('OLN', 43), ('FAN', 17), ('TVF', 2), ('OLF', 1), ('TVN', 1), ('MAF', 1), ('SIL', 1)]
+incorrect_adult_distribution:	[('OLN', 69), ('CHN', 6), ('CHF', 3), ('NOF', 2), ('OLF', 1), ('TVN', 1), ('TVF', 1), ('CXN', 1)]
+incorrect_female_distribution:	[('OLN', 37), ('MAN', 7), ('CHF', 1), ('NOF', 1), ('CHN', 1), ('TVN', 1), ('CXN', 1)]
+incorrect_male_distribution:	[('OLN', 32), ('FAN', 25), ('CHN', 5), ('CHF', 2), ('OLF', 1), ('NOF', 1), ('TVF', 1), ('FAF', 1)]
+incorrect_artificial_distribution:	[('FAF', 1), ('OLN', 1)]
+incorrect_overlap_distribution:	[]

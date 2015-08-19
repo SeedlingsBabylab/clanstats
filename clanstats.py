@@ -31,9 +31,9 @@ male_codes = [
                 "UNC",  # uncle
                 "EXM",  # male experimenter
                 "MFT",  # mother and father
-                "MFV",  # mother, father, and TV/radio/CD/etc...
-                "FTY",  # father and toy in unison
-                "FTV",  # father and TV/radio/CD/etc...
+                #"MFV",  # mother, father, and TV/radio/CD/etc...
+                #"FTY",  # father and toy in unison
+                #"FTV",  # father and TV/radio/CD/etc...
                 #"BTY",  # brother and toy in unison
                 #"BR1",  # brother
                 #"BR2",  # brother
@@ -44,7 +44,7 @@ male_codes = [
                 "AM3",  # adult male
                 "AM4",  # adult male
                 "GUN",  # great uncle
-                "FTB",  # father and brother in unison
+                #"FTB",  # father and brother in unison
                 "MAN",
                 "AUD",
                 "LMV",   # live male voice
@@ -61,15 +61,15 @@ female_codes = [
                 "GGR",  # great grandma
                 "AUN",  # aunt
                 "EXF",  # female experimenter
-                "MFT",  # mother and father
-                "MFV",  # mother, father, and TV/radio/CD/etc...
-                "MTV",  # mother and TV/radio/CD
-                "MTY",  # mother and toy in unison
+                #"MFT",  # mother and father
+                #"MFV",  # mother, father, and TV/radio/CD/etc...
+               # "MTV",  # mother and TV/radio/CD
+                #"MTY",  # mother and toy in unison
                 "LFV",  # live female voice
-                "MIS",  # mother and sister in unison
+                #"MIS",  # mother and sister in unison
                 "AF1",  # adult female
                 #"STY",  # sister and toy in unison
-                "GTY",  # grandma and toy in unison
+                #"GTY",  # grandma and toy in unison
                 "AFF",  # adult female friend
                 "FFR",  # female friend
                 "ADF",  # adult female
@@ -84,7 +84,7 @@ female_codes = [
                 #"SI1",  # sister 1
                 #"SI2",  # sister 2
                 "MT2",  # other mother
-                "MTT",  # moms together in unison
+                #"MTT",  # moms together in unison
                 "LVF", # live voice female
                 "FF2",  # female family friends 2-5
                 "FF3",
@@ -149,7 +149,16 @@ overlap_codes = [
                 "MFT",  # mother father
                 "MFV",  # mother father TV/etc...
                 "FTB",  # father brother
-                "MIS"   # mother sister
+                "MIS",   # mother sister
+                "FTY",
+                "FTV",
+                "GTY",
+                "MTT",
+                "STY",
+                "STV",
+                "BTY",
+                "MTV",
+                "MTY"
 ]
 
 
@@ -183,6 +192,7 @@ class ClanFile:
         self.male_count = 0
         self.female_count = 0
         self.artificial_count = 0
+        self.overlap_count = 0
 
         self.incorrect_windows = []
         self.correct_windows = []
@@ -192,25 +202,28 @@ class ClanFile:
         self.correct_male  = []
         self.correct_female = []
         self.correct_artificial = []
+        self.correct_overlap = []
 
         self.incorrect_adult = []
         self.incorrect_child = []
         self.incorrect_male  = []
         self.incorrect_female = []
         self.incorrect_artificial = []
-
+        self.incorrect_overlap = []
 
         self.incorrect_adult_dist  = []
         self.incorrect_child_dist  = []
         self.incorrect_male_dist   = []
         self.incorrect_female_dist = []
         self.incorrect_artificial_dist = []
+        self.incorrect_overlap_dist = []
 
         self.correct_adult_dist  = []
         self.correct_child_dist  = []
         self.correct_male_dist   = []
         self.correct_female_dist = []
         self.correct_artificial_dist = []
+        self.correct_overlap_dist = []
 
         self.interval_regx = re.compile("(\d+_\d+)")
 
@@ -231,12 +244,14 @@ class ClanFile:
         self.incorrect_female_dist = self.count_incorrect(self.incorrect_female)
         self.incorrect_male_dist = self.count_incorrect(self.incorrect_male)
         self.incorrect_artificial_dist = self.count_incorrect(self.incorrect_artificial)
+        self.incorrect_overlap_dist = self.count_incorrect(self.incorrect_overlap)
 
         self.correct_adult_dist = self.count_correct(self.correct_adult)
         self.correct_child_dist = self.count_correct(self.correct_child)
         self.correct_female_dist = self.count_correct(self.correct_female)
         self.correct_male_dist = self.count_correct(self.correct_male)
         self.correct_artificial_dist = self.count_correct(self.correct_artificial)
+        self.correct_overlap_dist = self.count_correct(self.correct_overlap)
 
         self.speakers = Counter([entry[0][0][1] for entry in self.windows]).most_common()
 
@@ -249,6 +264,7 @@ class ClanFile:
         print self.incorrect_female_dist
         print self.incorrect_male_dist
         print self.incorrect_artificial_dist
+
 
         self.export()
 
@@ -416,6 +432,15 @@ class ClanFile:
             else:
                 self.incorrect_artificial.append((current, window))
 
+        if current[0][1] in overlap_codes:
+            overlap_result = self.analyze_overlap(current, window)
+            self.overlap_count += 1
+
+            if overlap_result:
+                self.correct_overlap.append((current, overlap_result[1], window))
+            else:
+                self.incorrect_overlap.append((current, window))
+
         elif current[0][1] in clan_codes["noise"]:
             print "noise comparison"
 
@@ -504,6 +529,23 @@ class ClanFile:
         else:
             return False
 
+    def analyze_overlap(self, curr_entry, window):
+        results = [None] * len(window)
+
+        for index, entry in enumerate(window):
+            if entry[0][0] in clan_codes["overlap"]:
+                results[index] = True
+            else:
+                results[index] = False
+
+        if True in results:
+            if curr_entry[0][0] in clan_codes["overlap"]:
+                return (True, curr_entry)
+            else:
+                return (True, window[results.index(True)])
+        else:
+            return False
+
     def count_incorrect(self, incorrect):
         uncounted = []
         for entry in incorrect:
@@ -528,7 +570,8 @@ class ClanFile:
             file.write("adult:\t{}\n".format(self.adult_count))
             file.write("female:\t{}\n".format(self.female_count))
             file.write("male:\t{}\n".format(self.male_count))
-            file.write("artificial:\t{}\n\n\n".format(self.artificial_count))
+            file.write("artificial:\t{}\n".format(self.artificial_count))
+            file.write("overlap:\t{}\n\n\n".format(self.overlap_count))
 
 
             file.write("speakers:\t{}\n\n".format(self.speakers))
@@ -538,13 +581,16 @@ class ClanFile:
             file.write("correct_adult_distribution:\t{}\n".format(self.correct_adult_dist.most_common()))
             file.write("correct_female_distribution:\t{}\n".format(self.correct_female_dist.most_common()))
             file.write("correct_male_distribution:\t{}\n".format(self.correct_male_dist.most_common()))
-            file.write("correct_artificial_distribution:\t{}\n\n".format(self.correct_artificial_dist.most_common()))
+            file.write("correct_artificial_distribution:\t{}\n".format(self.correct_artificial_dist.most_common()))
+            file.write("correct_overlap_distribution:\t{}\n\n".format(self.correct_overlap_dist.most_common()))
 
             file.write("incorrect_child_distribution:\t{}\n".format(self.incorrect_child_dist.most_common()))
             file.write("incorrect_adult_distribution:\t{}\n".format(self.incorrect_adult_dist.most_common()))
             file.write("incorrect_female_distribution:\t{}\n".format(self.incorrect_female_dist.most_common()))
             file.write("incorrect_male_distribution:\t{}\n".format(self.incorrect_male_dist.most_common()))
             file.write("incorrect_artificial_distribution:\t{}\n".format(self.incorrect_artificial_dist.most_common()))
+            file.write("incorrect_overlap_distribution:\t{}\n".format(self.incorrect_overlap_dist.most_common()))
+
 
 class ClanDir:
     def __init__(self, path, output_path, window_size):
