@@ -1,6 +1,7 @@
 import os
 import sys
 import operator
+import csv
 
 import clanstats
 
@@ -254,11 +255,12 @@ class BatchClanstats:
     def export_conf_table(self):
         with open(self.conf_table_output, "w") as output:
             table = self.aggregate.confusion_table()
-            output.write(" ,adult,child,artificial,overlap\n")
-            for counts in table:
-                for count in counts:
-                    output.write("{},".format(count))
-                output.write("\n")
+            writer = csv.writer(output)
+            writer.writerow([" ","adult","child","artificial","overlap","total"])
+            for counts in table[0]:
+                writer.writerow([str(count) for count in counts])
+            for counts in table[1]:
+                writer.writerow([str(count)[0:4] for count in counts])
 
 
 class Clanstats(object):
@@ -409,15 +411,23 @@ incorr_overlap:\t{}\n".format(self.total,
 
     def confusion_table(self):
 
-                    # Adult                   Child                    Artificial                  Overlap
-        table = [
-                    ["adult",self.corr_adult_sum, self.adult_child_sum, self.adult_artificial_sum, self.adult_overlap_sum],
-                    ["child",self.child_adult_sum, self.corr_child_sum, self.child_artificial_sum, self.child_overlap_sum],
-                    ["artificial",self.artificial_adult_sum, self.artificial_child_sum, self.corr_artificial_sum, self.artificial_overlap_sum],
-                    ["overlap", self.overlap_adult_sum, self.overlap_child_sum, self.overlap_artificial_sum, self.corr_overlap_sum]
-                ]
+                                        # Adult                   Child                    Artificial                  Overlap
+        counts_table = [
+                            ["adult",self.corr_adult_sum, self.adult_child_sum, self.adult_artificial_sum, self.adult_overlap_sum, self.adult],
+                            ["child",self.child_adult_sum, self.corr_child_sum, self.child_artificial_sum, self.child_overlap_sum, self.child],
+                            ["artificial",self.artificial_adult_sum, self.artificial_child_sum, self.corr_artificial_sum, self.artificial_overlap_sum, self.artificial],
+                            ["overlap", self.overlap_adult_sum, self.overlap_child_sum, self.overlap_artificial_sum, self.corr_overlap_sum,self.overlap]
+                        ]
 
-        return table
+
+        percents_table = [
+                            ["adult",float(self.corr_adult_sum)/self.adult, float(self.adult_child_sum)/self.adult, float(self.adult_artificial_sum)/self.adult, float(self.adult_overlap_sum)/self.adult],
+                            ["child",float(self.child_adult_sum)/self.child, float(self.corr_child_sum)/self.child, float(self.child_artificial_sum)/self.child, float(self.child_overlap_sum)/self.child],
+                            ["artificial",float(self.artificial_adult_sum)/self.artificial, float(self.artificial_child_sum)/self.artificial, float(self.corr_artificial_sum)/self.artificial, float(self.artificial_overlap_sum)/self.artificial],
+                            ["overlap", float(self.overlap_adult_sum)/self.overlap, float(self.overlap_child_sum)/self.overlap, float(self.overlap_artificial_sum)/self.overlap, float(self.corr_overlap_sum)/self.overlap]
+                        ]
+
+        return (counts_table, percents_table)
 
     def sum(self):
 
