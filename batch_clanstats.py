@@ -256,7 +256,7 @@ class BatchClanstats:
         with open(self.conf_table_output, "w") as output:
             table = self.aggregate.confusion_table()
             writer = csv.writer(output)
-            writer.writerow([" ","adult","child","artificial","overlap","total"])
+            writer.writerow([" ","adult","child","artificial","overlap","noise","total"])
             for counts in table[0]:
                 writer.writerow([str(count) for count in counts])
             for counts in table[1]:
@@ -295,6 +295,7 @@ class Clanstats(object):
         self.artificial = artificial
         self.overlap = overlap
         self.speakers = speakers
+
         self.corr_child = corr_child
         self.corr_adult = corr_adult
         self.corr_female = corr_female
@@ -315,23 +316,27 @@ class Clanstats(object):
         self.child_female_sum = 0
         self.child_artificial_sum = 0
         self.child_overlap_sum = 0
+        self.child_noise_sum = 0
 
         self.corr_adult_sum = 0
         self.adult_child_sum = 0
         self.adult_artificial_sum = 0
         self.adult_overlap_sum = 0
+        self.adult_noise_sum = 0
 
         self.corr_female_sum = 0
         self.female_male_sum = 0
         self.female_child_sum = 0
         self.female_artificial_sum = 0
         self.female_overlap_sum = 0
+        self.female_noise_sum = 0
 
         self.corr_male_sum = 0
         self.male_female_sum = 0
         self.male_child_sum = 0
         self.male_artificial_sum = 0
         self.male_overlap_sum = 0
+        self.male_noise_sum = 0
 
         self.corr_artificial_sum = 0
         self.artificial_child_sum = 0
@@ -339,6 +344,7 @@ class Clanstats(object):
         self.artificial_male_sum = 0
         self.artificial_female_sum = 0
         self.artificial_overlap_sum = 0
+        self.artificial_noise_sum = 0
 
         self.corr_overlap_sum = 0
         self.overlap_child_sum = 0
@@ -346,7 +352,13 @@ class Clanstats(object):
         self.overlap_male_sum = 0
         self.overlap_female_sum = 0
         self.overlap_artificial_sum = 0
+        self.overlap_noise_sum = 0
 
+        self.adult_classifier_count = 0
+        self.child_classifier_count = 0
+        self.artificial_classifier_count = 0
+        self.overlap_classifier_count = 0
+        self.noise_classifier_count = 0
         self.sum()
 
 
@@ -411,20 +423,22 @@ incorr_overlap:\t{}\n".format(self.total,
 
     def confusion_table(self):
 
-                                        # Adult                   Child                    Artificial                  Overlap
+
+                                        # Adult                   Child                    Artificial                  Overlap`         Noise
         counts_table = [
-                            ["adult",self.corr_adult_sum, self.adult_child_sum, self.adult_artificial_sum, self.adult_overlap_sum, self.adult],
-                            ["child",self.child_adult_sum, self.corr_child_sum, self.child_artificial_sum, self.child_overlap_sum, self.child],
-                            ["artificial",self.artificial_adult_sum, self.artificial_child_sum, self.corr_artificial_sum, self.artificial_overlap_sum, self.artificial],
-                            ["overlap", self.overlap_adult_sum, self.overlap_child_sum, self.overlap_artificial_sum, self.corr_overlap_sum,self.overlap]
+                            ["adult",self.corr_adult_sum, self.adult_child_sum, self.adult_artificial_sum, self.adult_overlap_sum, self.adult_noise_sum, self.adult ],
+                            ["child",self.child_adult_sum, self.corr_child_sum, self.child_artificial_sum, self.child_overlap_sum, self.child_noise_sum, self.child],
+                            ["artificial",self.artificial_adult_sum, self.artificial_child_sum, self.corr_artificial_sum, self.artificial_overlap_sum, self.artificial_noise_sum, self.artificial],
+                            ["overlap", self.overlap_adult_sum, self.overlap_child_sum, self.overlap_artificial_sum, self.corr_overlap_sum, self.overlap_noise_sum, self.overlap],
+                            ["total", self.adult_classifier_count, self.child_classifier_count, self.artificial_classifier_count, self.noise_classifier_count, self.overlap_classifier_count]
                         ]
 
 
         percents_table = [
-                            ["adult",float(self.corr_adult_sum)/self.adult, float(self.adult_child_sum)/self.adult, float(self.adult_artificial_sum)/self.adult, float(self.adult_overlap_sum)/self.adult],
-                            ["child",float(self.child_adult_sum)/self.child, float(self.corr_child_sum)/self.child, float(self.child_artificial_sum)/self.child, float(self.child_overlap_sum)/self.child],
-                            ["artificial",float(self.artificial_adult_sum)/self.artificial, float(self.artificial_child_sum)/self.artificial, float(self.corr_artificial_sum)/self.artificial, float(self.artificial_overlap_sum)/self.artificial],
-                            ["overlap", float(self.overlap_adult_sum)/self.overlap, float(self.overlap_child_sum)/self.overlap, float(self.overlap_artificial_sum)/self.overlap, float(self.corr_overlap_sum)/self.overlap]
+                            ["adult",float(self.corr_adult_sum)/self.adult, float(self.adult_child_sum)/self.adult, float(self.adult_artificial_sum)/self.adult, float(self.adult_overlap_sum)/self.adult, float(self.adult_noise_sum)/self.adult],
+                            ["child",float(self.child_adult_sum)/self.child, float(self.corr_child_sum)/self.child, float(self.child_artificial_sum)/self.child, float(self.child_overlap_sum)/self.child, float(self.child_noise_sum)/self.child],
+                            ["artificial",float(self.artificial_adult_sum)/self.artificial, float(self.artificial_child_sum)/self.artificial, float(self.corr_artificial_sum)/self.artificial, float(self.artificial_overlap_sum)/self.artificial, float(self.artificial_noise_sum)/self.artificial],
+                            ["overlap", float(self.overlap_adult_sum)/self.overlap, float(self.overlap_child_sum)/self.overlap, float(self.overlap_artificial_sum)/self.overlap, float(self.corr_overlap_sum)/self.overlap, float(self.overlap_noise_sum)/self.overlap]
                         ]
 
         return (counts_table, percents_table)
@@ -465,6 +479,8 @@ incorr_overlap:\t{}\n".format(self.total,
                 self.adult_artificial_sum += speaker[1]
             if speaker[0] in clanstats.clan_codes["overlap"]:
                 self.adult_overlap_sum += speaker[1]
+            if speaker[0] in clanstats.clan_codes["noise"]:
+                self.adult_noise_sum += speaker[1]
 
         for speaker in self.incorr_female:
             if speaker[0] in clanstats.clan_codes["child"]:
@@ -475,6 +491,8 @@ incorr_overlap:\t{}\n".format(self.total,
                 self.female_artificial_sum += speaker[1]
             if speaker[0] in clanstats.clan_codes["overlap"]:
                 self.female_overlap_sum += speaker[1]
+            if speaker[0] in clanstats.clan_codes["noise"]:
+                self.female_noise_sum += speaker[1]
 
         for speaker in self.incorr_male:
             if speaker[0] in clanstats.clan_codes["child"]:
@@ -485,6 +503,9 @@ incorr_overlap:\t{}\n".format(self.total,
                 self.male_artificial_sum += speaker[1]
             if speaker[0] in clanstats.clan_codes["overlap"]:
                 self.male_overlap_sum += speaker[1]
+            if speaker[0] in clanstats.clan_codes["noise"]:
+                self.male_noise_sum += speaker[1]
+
 
         for speaker in self.incorr_artificial:
             if speaker[0] in clanstats.clan_codes["child"]:
@@ -497,6 +518,8 @@ incorr_overlap:\t{}\n".format(self.total,
                 self.artificial_male_sum += speaker[1]
             if speaker[0] in clanstats.clan_codes["overlap"]:
                 self.artificial_overlap_sum += speaker[1]
+            if speaker[0] in clanstats.clan_codes["noise"]:
+                self.artificial_noise_sum += speaker[1]
 
         for speaker in self.incorr_overlap:
             if speaker[0] in clanstats.clan_codes["child"]:
@@ -509,7 +532,14 @@ incorr_overlap:\t{}\n".format(self.total,
                 self.overlap_male_sum += speaker[1]
             if speaker[0] in clanstats.clan_codes["artificial"]:
                 self.overlap_artificial_sum += speaker[1]
+            if speaker[0] in clanstats.clan_codes["male"]:
+                self.overlap_noise_sum += speaker[1]
 
+        self.adult_classifier_count = self.corr_adult_sum + self.child_adult_sum + self.artificial_adult_sum + self.overlap_adult_sum
+        self.child_classifier_count = self.corr_child_sum + self.adult_child_sum + self.artificial_child_sum + self.overlap_child_sum
+        self.artificial_classifier_count = self.corr_artificial_sum + self.child_artificial_sum + self.adult_artificial_sum + self.overlap_artificial_sum
+        self.overlap_classifier_count = self.corr_overlap_sum + self.child_overlap_sum + self.adult_overlap_sum + self.artificial_overlap_sum
+        self.noise_classifier_count = self.child_noise_sum + self.adult_noise_sum + self.artificial_noise_sum + self.overlap_noise_sum
 
 
 if __name__ == "__main__":
