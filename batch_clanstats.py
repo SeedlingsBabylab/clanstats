@@ -10,7 +10,8 @@ class BatchClanstats:
     def __init__(self, input_path, output_path, conf_table_output):
         self.path = input_path
         self.output = output_path
-        self.conf_table_output = conf_table_output
+        self.adultchild_conftable = conf_table_output.replace(".csv", "_adultchild.csv")
+        self.malefemale_conftable = conf_table_output.replace(".csv", "_malefemale.csv")
         self.files = os.listdir(self.path)
         print self.files
         self.stats = {}
@@ -23,7 +24,7 @@ class BatchClanstats:
         self.aggregate_files()
 
         self.export()
-        self.export_conf_table()
+        self.export_conf_tables()
     def parse(self, clanstat_file):
         """
         Parses a clanstats output file and stores the values in
@@ -247,21 +248,93 @@ class BatchClanstats:
 
         self.aggregate.sort()
         self.aggregate.sum()
+        self.aggregate.calc_stats()
 
     def export(self):
         with open(self.output, "w") as output:
             output.write(str(self.aggregate))
 
-    def export_conf_table(self):
-        with open(self.conf_table_output, "w") as output:
-            table = self.aggregate.confusion_table()
-            writer = csv.writer(output)
-            writer.writerow([" ","adult","child","artificial","overlap","noise","total"])
-            for counts in table[0]:
-                writer.writerow([str(count) for count in counts])
-            for counts in table[1]:
-                writer.writerow([str(count)[0:4] for count in counts])
+    def export_conf_tables(self):
+        table = self.aggregate.confusion_table()
+        with open(self.adultchild_conftable, "w") as adultchild_output:
+            with open(self.malefemale_conftable, "w") as malefemale_output:
+                ac_writer = csv.writer(adultchild_output)
+                mf_writer = csv.writer(malefemale_output)
 
+                ac_writer.writerow([" ","adult","child","artificial","overlap","noise","total"])
+                mf_writer.writerow([" ","male","female", "child","artificial","overlap","noise","total"])
+                for counts in table[0]:
+                    ac_writer.writerow([str(count) for count in counts])
+                for counts in table[1]:
+                    ac_writer.writerow([str(count)[0:4] for count in counts])
+
+                ac_writer.writerow(["adult_tpr", str(self.aggregate.adult_tpr)[0:5]])
+                ac_writer.writerow(["adult_spc", str(self.aggregate.adult_spc)[0:5]])
+                ac_writer.writerow(["adult_ppv", str(self.aggregate.adult_ppv)[0:5]])
+                ac_writer.writerow(["adult_npv", str(self.aggregate.adult_npv)[0:5]])
+                ac_writer.writerow(["adult_fpr", str(self.aggregate.adult_fpr)[0:5]])
+                ac_writer.writerow(["adult_fdr", str(self.aggregate.adult_fdr)[0:5]])
+                ac_writer.writerow(["adult_fnr", str(self.aggregate.adult_fnr)[0:5]])
+                ac_writer.writerow(["adult_F1", str(self.aggregate.adult_f1)[0:5]])
+
+                ac_writer.writerow(["child_tpr", str(self.aggregate.child_tpr)[0:5]])
+                ac_writer.writerow(["child_spc", str(self.aggregate.child_spc)[0:5]])
+                ac_writer.writerow(["child_ppv", str(self.aggregate.child_ppv)[0:5]])
+                ac_writer.writerow(["child_npv", str(self.aggregate.child_npv)[0:5]])
+                ac_writer.writerow(["child_fpr", str(self.aggregate.child_fpr)[0:5]])
+                ac_writer.writerow(["child_fdr", str(self.aggregate.child_fdr)[0:5]])
+                ac_writer.writerow(["child_fnr", str(self.aggregate.child_fnr)[0:5]])
+                ac_writer.writerow(["child_F1", str(self.aggregate.child_f1)[0:5]])
+
+                ac_writer.writerow(["artificial_tpr", str(self.aggregate.artificial_tpr)[0:5]])
+                ac_writer.writerow(["artificial_spc", str(self.aggregate.artificial_spc)[0:5]])
+                ac_writer.writerow(["artificial_ppv", str(self.aggregate.artificial_ppv)[0:5]])
+                ac_writer.writerow(["artificial_npv", str(self.aggregate.artificial_npv)[0:5]])
+                ac_writer.writerow(["artificial_fpr", str(self.aggregate.artificial_fpr)[0:5]])
+                ac_writer.writerow(["artificial_fdr", str(self.aggregate.artificial_fdr)[0:5]])
+                ac_writer.writerow(["artificial_fnr", str(self.aggregate.artificial_fnr)[0:5]])
+                ac_writer.writerow(["artificial_F1", str(self.aggregate.artificial_f1)[0:5]])
+
+                for counts in table[2]:
+                    mf_writer.writerow([str(count) for count in counts])
+                for counts in table[3]:
+                    mf_writer.writerow([str(count)[0:4] for count in counts])
+
+                mf_writer.writerow(["male_tpr", str(self.aggregate.male_tpr)[0:5]])
+                mf_writer.writerow(["male_spc", str(self.aggregate.male_spc)[0:5]])
+                mf_writer.writerow(["male_ppv", str(self.aggregate.male_ppv)[0:5]])
+                mf_writer.writerow(["male_npv", str(self.aggregate.male_npv)[0:5]])
+                mf_writer.writerow(["male_fpr", str(self.aggregate.male_fpr)[0:5]])
+                mf_writer.writerow(["male_fdr", str(self.aggregate.male_fdr)[0:5]])
+                mf_writer.writerow(["male_fnr", str(self.aggregate.male_fnr)[0:5]])
+                mf_writer.writerow(["male_F1", str(self.aggregate.male_f1)[0:5]])
+
+                mf_writer.writerow(["female_tpr", str(self.aggregate.female_tpr)[0:5]])
+                mf_writer.writerow(["female_spc", str(self.aggregate.female_spc)[0:5]])
+                mf_writer.writerow(["female_ppv", str(self.aggregate.female_ppv)[0:5]])
+                mf_writer.writerow(["female_npv", str(self.aggregate.female_npv)[0:5]])
+                mf_writer.writerow(["female_fpr", str(self.aggregate.female_fpr)[0:5]])
+                mf_writer.writerow(["female_fdr", str(self.aggregate.female_fdr)[0:5]])
+                mf_writer.writerow(["female_fnr", str(self.aggregate.female_fnr)[0:5]])
+                mf_writer.writerow(["female_F1", str(self.aggregate.female_f1)[0:5]])
+
+                mf_writer.writerow(["child_tpr", str(self.aggregate.mf_child_tpr)[0:5]])
+                mf_writer.writerow(["child_spc", str(self.aggregate.mf_child_spc)[0:5]])
+                mf_writer.writerow(["child_ppv", str(self.aggregate.mf_child_ppv)[0:5]])
+                mf_writer.writerow(["child_npv", str(self.aggregate.mf_child_npv)[0:5]])
+                mf_writer.writerow(["child_fpr", str(self.aggregate.mf_child_fpr)[0:5]])
+                mf_writer.writerow(["child_fdr", str(self.aggregate.mf_child_fdr)[0:5]])
+                mf_writer.writerow(["child_fnr", str(self.aggregate.mf_child_fnr)[0:5]])
+                mf_writer.writerow(["child_F1", str(self.aggregate.mf_child_f1)[0:5]])
+
+                mf_writer.writerow(["artificial_tpr", str(self.aggregate.mf_artificial_tpr)[0:5]])
+                mf_writer.writerow(["artificial_spc", str(self.aggregate.mf_artificial_spc)[0:5]])
+                mf_writer.writerow(["artificial_ppv", str(self.aggregate.mf_artificial_ppv)[0:5]])
+                mf_writer.writerow(["artificial_npv", str(self.aggregate.mf_artificial_npv)[0:5]])
+                mf_writer.writerow(["artificial_fpr", str(self.aggregate.mf_artificial_fpr)[0:5]])
+                mf_writer.writerow(["artificial_fdr", str(self.aggregate.mf_artificial_fdr)[0:5]])
+                mf_writer.writerow(["artificial_fnr", str(self.aggregate.mf_artificial_fnr)[0:5]])
+                mf_writer.writerow(["artificial_F1", str(self.aggregate.mf_artificial_f1)[0:5]])
 
 class Clanstats(object):
 
@@ -359,6 +432,128 @@ class Clanstats(object):
         self.artificial_classifier_count = 0
         self.overlap_classifier_count = 0
         self.noise_classifier_count = 0
+
+        self.adult_tp = 0   # true positive
+        self.adult_tn = 0   # true negative
+        self.adult_fp = 0   # false positive
+        self.adult_fn = 0   # false negative
+
+        self.adult_tpr = 0  # true positive rate (sensitivity)
+        self.adult_spc = 0  # specificity (true negative rate)
+        self.adult_ppv = 0  # positive predictive value (precision)
+        self.adult_npv = 0  # negative predictive value
+        self.adult_fpr = 0  # false positive rate
+        self.adult_fdr = 0  # false discovery rate
+        self.adult_fnr = 0  # false negative rate
+        self.adult_acc = 0  # accuracy
+        self.adult_f1  = 0  # F1 score
+
+
+        self.child_tp = 0
+        self.child_tn = 0
+        self.child_fp = 0
+        self.child_fn = 0
+
+        self.child_tpr = 0  # true positive rate (sensitivity)
+        self.child_spc = 0  # specificity (true negative rate)
+        self.child_ppv = 0  # positive predictive value (precision)
+        self.child_npv = 0  # negative predictive value
+        self.child_fpr = 0  # false positive rate
+        self.child_fdr = 0  # false discovery rate
+        self.child_fnr = 0  # false negative rate
+        self.child_acc = 0  # accuracy
+        self.child_f1  = 0  # F1 score
+
+        self.artificial_tp = 0
+        self.artificial_tn = 0
+        self.artificial_fp = 0
+        self.artificial_fn = 0
+
+        self.artificial_tpr = 0  # true positive rate (sensitivity)
+        self.artificial_spc = 0  # specificity (true negative rate)
+        self.artificial_ppv = 0  # positive predictive value (precision)
+        self.artificial_npv = 0  # negative predictive value
+        self.artificial_fpr = 0  # false positive rate
+        self.artificial_fdr = 0  # false discovery rate
+        self.artificial_fnr = 0  # false negative rate
+        self.artificial_acc = 0  # accuracy
+        self.artificial_f1  = 0  # F1 score
+
+        self.overlap_tp = 0
+        self.overlap_tn = 0
+        self.overlap_fp = 0
+        self.overlap_fn = 0
+
+        self.overlap_tpr = 0  # true positive rate (sensitivity)
+        self.overlap_spc = 0  # specificity (true negative rate)
+        self.overlap_ppv = 0  # positive predictive value (precision)
+        self.overlap_npv = 0  # negative predictive value
+        self.overlap_fpr = 0  # false positive rate
+        self.overlap_fdr = 0  # false discovery rate
+        self.overlap_fnr = 0  # false negative rate
+        self.overlap_acc = 0  # accuracy
+        self.overlap_f1  = 0  # F1 score
+
+        self.male_tp = 0
+        self.male_tn = 0
+        self.male_fp = 0
+        self.male_fn = 0
+
+        self.male_tpr = 0  # true positive rate (sensitivity)
+        self.male_spc = 0  # specificity (true negative rate)
+        self.male_ppv = 0  # positive predictive value (precision)
+        self.male_npv = 0  # negative predictive value
+        self.male_fpr = 0  # false positive rate
+        self.male_fdr = 0  # false discovery rate
+        self.male_fnr = 0  # false negative rate
+        self.male_acc = 0  # accuracy
+        self.male_f1  = 0  # F1 score
+
+        self.female_tp = 0
+        self.female_tn = 0
+        self.female_fp = 0
+        self.female_fn = 0
+
+        self.female_tpr = 0  # true positive rate (sensitivity)
+        self.female_spc = 0  # specificity (true negative rate)
+        self.female_ppv = 0  # positive predictive value (precision)
+        self.female_npv = 0  # negative predictive value
+        self.female_fpr = 0  # false positive rate
+        self.female_fdr = 0  # false discovery rate
+        self.female_fnr = 0  # false negative rate
+        self.female_acc = 0  # accuracy
+        self.female_f1  = 0  # F1 score
+
+        self.mf_child_tp = 0
+        self.mf_child_tn = 0
+        self.mf_child_fp = 0
+        self.mf_child_fn = 0
+
+        self.mf_child_tpr = 0  # true positive rate (sensitivity)
+        self.mf_child_spc = 0  # specificity (true negative rate)
+        self.mf_child_ppv = 0  # positive predictive value (precision)
+        self.mf_child_npv = 0  # negative predictive value
+        self.mf_child_fpr = 0  # false positive rate
+        self.mf_child_fdr = 0  # false discovery rate
+        self.mf_child_fnr = 0  # false negative rate
+        self.mf_child_acc = 0  # accuracy
+        self.mf_child_f1  = 0  # F1 score
+
+        self.mf_artificial_tp = 0
+        self.mf_artificial_tn = 0
+        self.mf_artificial_fp = 0
+        self.mf_artificial_fn = 0
+
+        self.mf_artificial_tpr = 0  # true positive rate (sensitivity)
+        self.mf_artificial_spc = 0  # specificity (true negative rate)
+        self.mf_artificial_ppv = 0  # positive predictive value (precision)
+        self.mf_artificial_npv = 0  # negative predictive value
+        self.mf_artificial_fpr = 0  # false positive rate
+        self.mf_artificial_fdr = 0  # false discovery rate
+        self.mf_artificial_fnr = 0  # false negative rate
+        self.mf_artificial_acc = 0  # accuracy
+        self.mf_artificial_f1  = 0  # F1 score
+
         self.sum()
 
 
@@ -423,25 +618,175 @@ incorr_overlap:\t{}\n".format(self.total,
 
     def confusion_table(self):
 
+        adult_counts_table = [
+                                ["adult",
+                                 self.corr_adult_sum,
+                                 self.adult_child_sum,
+                                 self.adult_artificial_sum,
+                                 self.adult_overlap_sum,
+                                 self.adult_noise_sum,
+                                 self.adult ],
 
-                                        # Adult                   Child                    Artificial                  Overlap`         Noise
-        counts_table = [
-                            ["adult",self.corr_adult_sum, self.adult_child_sum, self.adult_artificial_sum, self.adult_overlap_sum, self.adult_noise_sum, self.adult ],
-                            ["child",self.child_adult_sum, self.corr_child_sum, self.child_artificial_sum, self.child_overlap_sum, self.child_noise_sum, self.child],
-                            ["artificial",self.artificial_adult_sum, self.artificial_child_sum, self.corr_artificial_sum, self.artificial_overlap_sum, self.artificial_noise_sum, self.artificial],
-                            ["overlap", self.overlap_adult_sum, self.overlap_child_sum, self.overlap_artificial_sum, self.corr_overlap_sum, self.overlap_noise_sum, self.overlap],
-                            ["total", self.adult_classifier_count, self.child_classifier_count, self.artificial_classifier_count, self.noise_classifier_count, self.overlap_classifier_count]
-                        ]
+                                ["child",
+                                 self.child_adult_sum,
+                                 self.corr_child_sum,
+                                 self.child_artificial_sum,
+                                 self.child_overlap_sum,
+                                 self.child_noise_sum,
+                                 self.child],
 
+                                ["artificial",
+                                 self.artificial_adult_sum,
+                                 self.artificial_child_sum,
+                                 self.corr_artificial_sum,
+                                 self.artificial_overlap_sum,
+                                 self.artificial_noise_sum,
+                                 self.artificial],
 
-        percents_table = [
-                            ["adult",float(self.corr_adult_sum)/self.adult, float(self.adult_child_sum)/self.adult, float(self.adult_artificial_sum)/self.adult, float(self.adult_overlap_sum)/self.adult, float(self.adult_noise_sum)/self.adult],
-                            ["child",float(self.child_adult_sum)/self.child, float(self.corr_child_sum)/self.child, float(self.child_artificial_sum)/self.child, float(self.child_overlap_sum)/self.child, float(self.child_noise_sum)/self.child],
-                            ["artificial",float(self.artificial_adult_sum)/self.artificial, float(self.artificial_child_sum)/self.artificial, float(self.corr_artificial_sum)/self.artificial, float(self.artificial_overlap_sum)/self.artificial, float(self.artificial_noise_sum)/self.artificial],
-                            ["overlap", float(self.overlap_adult_sum)/self.overlap, float(self.overlap_child_sum)/self.overlap, float(self.overlap_artificial_sum)/self.overlap, float(self.corr_overlap_sum)/self.overlap, float(self.overlap_noise_sum)/self.overlap]
-                        ]
+                                ["overlap",
+                                 self.overlap_adult_sum,
+                                 self.overlap_child_sum,
+                                 self.overlap_artificial_sum,
+                                 self.corr_overlap_sum,
+                                 self.overlap_noise_sum,
+                                 self.overlap],
 
-        return (counts_table, percents_table)
+                                ["total",
+                                 self.adult_classifier_count,
+                                 self.child_classifier_count,
+                                 self.artificial_classifier_count,
+                                 self.noise_classifier_count,
+                                 self.overlap_classifier_count]
+        ]
+
+        gender_counts_table = [
+                                ["male",
+                                 self.corr_male_sum,
+                                 self.male_female_sum,
+                                 self.male_child_sum,
+                                 self.male_artificial_sum,
+                                 self.male_overlap_sum,
+                                 self.male_noise_sum,
+                                 self.male],
+
+                                ["female",
+                                 self.female_male_sum,
+                                 self.corr_female_sum,
+                                 self.female_child_sum,
+                                 self.female_artificial_sum,
+                                 self.female_overlap_sum,
+                                 self.female_noise_sum,
+                                 self.female],
+
+                                ["child",
+                                 self.child_male_sum,
+                                 self.child_female_sum,
+                                 self.corr_child_sum,
+                                 self.child_overlap_sum,
+                                 self.child_artificial_sum,
+                                 self.child_noise_sum,
+                                 self.child],
+
+                                ["artificial",
+                                 self.artificial_male_sum,
+                                 self.artificial_female_sum,
+                                 self.artificial_child_sum,
+                                 self.corr_artificial_sum,
+                                 self.artificial_overlap_sum,
+                                 self.artificial_noise_sum,
+                                 self.artificial],
+
+                                ["overlap",
+                                 self.overlap_male_sum,
+                                 self.overlap_female_sum,
+                                 self.overlap_child_sum,
+                                 self.overlap_artificial_sum,
+                                 self.corr_overlap_sum,
+                                 self.overlap_noise_sum,
+                                 self.overlap],
+
+                                ["total",
+                                 self.male_classifier_count,
+                                 self.female_classifier_count,
+                                 self.child_classifier_count,
+                                 self.artificial_classifier_count,
+                                 self.overlap_classifier_count,
+                                 self.noise_classifier_count]
+        ]
+
+        adult_percents_table = [
+                                    ["adult",
+                                     float(self.corr_adult_sum)/self.adult,
+                                     float(self.adult_child_sum)/self.adult,
+                                     float(self.adult_artificial_sum)/self.adult,
+                                     float(self.adult_overlap_sum)/self.adult,
+                                     float(self.adult_noise_sum)/self.adult],
+
+                                    ["child",
+                                     float(self.child_adult_sum)/self.child,
+                                     float(self.corr_child_sum)/self.child,
+                                     float(self.child_artificial_sum)/self.child,
+                                     float(self.child_overlap_sum)/self.child,
+                                     float(self.child_noise_sum)/self.child],
+
+                                    ["artificial",
+                                     float(self.artificial_adult_sum)/self.artificial,
+                                     float(self.artificial_child_sum)/self.artificial,
+                                     float(self.corr_artificial_sum)/self.artificial,
+                                     float(self.artificial_overlap_sum)/self.artificial,
+                                     float(self.artificial_noise_sum)/self.artificial],
+
+                                    ["overlap",
+                                     float(self.overlap_adult_sum)/self.overlap,
+                                     float(self.overlap_child_sum)/self.overlap,
+                                     float(self.overlap_artificial_sum)/self.overlap,
+                                     float(self.corr_overlap_sum)/self.overlap,
+                                     float(self.overlap_noise_sum)/self.overlap]
+        ]
+
+        gender_percents_table = [
+                                    ["male",
+                                     float(self.corr_male_sum)/self.male,
+                                     float(self.male_female_sum)/self.male,
+                                     float(self.male_child_sum)/self.male,
+                                     float(self.male_artificial_sum)/self.male,
+                                     float(self.male_overlap_sum)/self.male,
+                                     float(self.male_noise_sum)/self.male],
+
+                                    ["female",
+                                     float(self.female_male_sum)/self.female,
+                                     float(self.corr_female_sum)/self.female,
+                                     float(self.female_child_sum)/self.female,
+                                     float(self.female_artificial_sum)/self.female,
+                                     float(self.female_overlap_sum)/self.female,
+                                     float(self.female_noise_sum)/self.female],
+
+                                    ["child",
+                                     float(self.child_male_sum)/self.child,
+                                     float(self.child_female_sum)/self.child,
+                                     float(self.corr_child_sum)/self.child,
+                                     float(self.child_artificial_sum)/self.child,
+                                     float(self.child_overlap_sum)/self.child,
+                                     float(self.child_noise_sum)/self.child
+                                     ],
+
+                                    ["artificial",
+                                     float(self.artificial_male_sum)/self.artificial,
+                                     float(self.artificial_female_sum)/self.artificial,
+                                     float(self.artificial_child_sum)/self.artificial,
+                                     float(self.corr_artificial_sum)/self.artificial,
+                                     float(self.artificial_overlap_sum)/self.artificial,
+                                     float(self.artificial_noise_sum)/self.artificial],
+
+                                    ["overlap",
+                                     float(self.overlap_male_sum)/self.overlap,
+                                     float(self.overlap_female_sum)/self.overlap,
+                                     float(self.overlap_child_sum)/self.overlap,
+                                     float(self.overlap_artificial_sum)/self.overlap,
+                                     float(self.corr_overlap_sum)/self.overlap,
+                                     float(self.overlap_noise_sum)/self.overlap]
+        ]
+        return (adult_counts_table, adult_percents_table, gender_counts_table, gender_percents_table)
 
     def sum(self):
 
@@ -535,12 +880,155 @@ incorr_overlap:\t{}\n".format(self.total,
             if speaker[0] in clanstats.clan_codes["male"]:
                 self.overlap_noise_sum += speaker[1]
 
+
         self.adult_classifier_count = self.corr_adult_sum + self.child_adult_sum + self.artificial_adult_sum + self.overlap_adult_sum
+        self.male_classifier_count = self.corr_male_sum + self.female_male_sum + self.child_male_sum + self.artificial_male_sum + self.overlap_male_sum
+        self.female_classifier_count = self.corr_female_sum + self.male_female_sum + self.child_female_sum + self.artificial_female_sum + self.overlap_male_sum
         self.child_classifier_count = self.corr_child_sum + self.adult_child_sum + self.artificial_child_sum + self.overlap_child_sum
         self.artificial_classifier_count = self.corr_artificial_sum + self.child_artificial_sum + self.adult_artificial_sum + self.overlap_artificial_sum
         self.overlap_classifier_count = self.corr_overlap_sum + self.child_overlap_sum + self.adult_overlap_sum + self.artificial_overlap_sum
         self.noise_classifier_count = self.child_noise_sum + self.adult_noise_sum + self.artificial_noise_sum + self.overlap_noise_sum
 
+
+        self.adult_tp = self.corr_adult_sum
+        self.adult_tn = self.corr_child_sum + self.child_artificial_sum + self.child_overlap_sum +\
+                        self.child_noise_sum + self.artificial_child_sum +self.corr_artificial_sum +\
+                        self.artificial_overlap_sum + self.artificial_noise_sum + self.overlap_child_sum +\
+                        self.overlap_artificial_sum + self.corr_overlap_sum + self.overlap_noise_sum
+        self.adult_fp = self.child_adult_sum + self.artificial_adult_sum + self.overlap_adult_sum
+        self.adult_fn = self.adult_child_sum + self.adult_artificial_sum + self.adult_overlap_sum + self.adult_noise_sum
+
+
+        self.child_tp = self.corr_child_sum
+        self.child_tn = self.corr_adult_sum + self.adult_artificial_sum + self.adult_overlap_sum +\
+                        self.adult_noise_sum + self.artificial_adult_sum + self.corr_artificial_sum +\
+                        self.artificial_overlap_sum + self.artificial_noise_sum + self.overlap_adult_sum +\
+                        self.overlap_artificial_sum + self.corr_overlap_sum + self.overlap_noise_sum
+        self.child_fp = self.adult_child_sum + self.artificial_child_sum + self.overlap_child_sum
+        self.child_fn = self.child_adult_sum + self.child_artificial_sum + self.child_overlap_sum + self.child_noise_sum
+
+
+        self.artificial_tp = self.corr_artificial_sum
+        self.artificial_tn = self.corr_adult_sum + self.adult_child_sum + self.adult_overlap_sum +\
+                             self.adult_noise_sum + self.child_adult_sum + self.corr_child_sum +\
+                             self.child_overlap_sum + self.child_noise_sum + self.overlap_adult_sum +\
+                             self.overlap_child_sum + self.corr_overlap_sum + self.overlap_noise_sum
+        self.artificial_fp = self.adult_artificial_sum + self.child_artificial_sum + self.overlap_artificial_sum
+        self.artificial_fn = self.artificial_adult_sum + self.artificial_child_sum + self.artificial_overlap_sum + self.artificial_noise_sum
+
+
+        self.male_tp = self.corr_male_sum
+        self.male_tn = self.corr_female_sum + self.female_child_sum + self.female_artificial_sum +\
+                       self.female_overlap_sum + self.female_noise_sum + self.child_female_sum +\
+                       self.corr_child_sum + self.child_artificial_sum + self.child_overlap_sum +\
+                       self.child_noise_sum + self.artificial_female_sum + self.artificial_child_sum +\
+                       self.corr_artificial_sum + self.artificial_overlap_sum + self.artificial_noise_sum +\
+                       self.overlap_female_sum + self.overlap_child_sum + self.overlap_artificial_sum +\
+                       self.corr_overlap_sum + self.overlap_noise_sum
+        self.male_fp = self.female_male_sum + self.child_male_sum + self.artificial_male_sum + self.overlap_male_sum
+        self.male_fn = self.male_female_sum + self.male_child_sum + self.male_artificial_sum + self.male_overlap_sum + self.male_noise_sum
+
+
+        self.female_tp = self.corr_female_sum
+        self.female_tn = self.corr_male_sum + self.male_child_sum + self.male_artificial_sum +\
+                         self.male_overlap_sum + self.male_noise_sum + self.child_male_sum +\
+                         self.corr_child_sum + self.child_artificial_sum + self.child_overlap_sum +\
+                         self.child_noise_sum + self.artificial_male_sum + self.artificial_child_sum +\
+                         self.corr_artificial_sum + self.artificial_overlap_sum + self.artificial_noise_sum +\
+                         self.overlap_male_sum + self.overlap_child_sum + self.overlap_artificial_sum +\
+                         self.overlap_noise_sum
+        self.female_fp = self.male_female_sum + self.child_female_sum + self.artificial_female_sum + self.overlap_female_sum
+        self.female_fn = self.female_male_sum + self.female_child_sum + self.female_artificial_sum + self.female_overlap_sum + self.female_noise_sum
+
+
+        self.mf_child_tp = self.corr_child_sum
+        self.mf_child_tn = self.corr_male_sum + self.male_female_sum + self.male_artificial_sum +\
+                           self.male_overlap_sum + self.male_noise_sum + self.female_male_sum +\
+                           self.corr_female_sum + self.female_artificial_sum + self.female_overlap_sum +\
+                           self.female_noise_sum + self.artificial_male_sum + self.artificial_female_sum +\
+                           self.corr_artificial_sum + self.artificial_overlap_sum + self.artificial_noise_sum +\
+                           self.overlap_male_sum + self.overlap_female_sum + self.overlap_artificial_sum +\
+                           self.corr_overlap_sum + self.overlap_noise_sum
+        self.mf_child_fp = self.male_child_sum + self.female_child_sum + self.artificial_child_sum +\
+                           self.overlap_child_sum
+        self.mf_child_fn = self.child_male_sum + self.child_female_sum + self.child_artificial_sum + self.child_overlap_sum + self.child_noise_sum
+
+
+        self.mf_artificial_tp = self.corr_artificial_sum
+        self.mf_artificial_tn = self.corr_male_sum + self.male_female_sum + self.male_child_sum +\
+                                self.male_overlap_sum + self.male_noise_sum + self.female_male_sum +\
+                                self.corr_female_sum + self.female_child_sum + self.female_overlap_sum +\
+                                self.female_noise_sum + self.child_male_sum + self.child_female_sum +\
+                                self.corr_child_sum + self.child_overlap_sum + self.child_noise_sum +\
+                                self.overlap_male_sum + self.overlap_female_sum + self.overlap_child_sum +\
+                                self.corr_overlap_sum + self.overlap_noise_sum
+        self.mf_artificial_fp = self.male_artificial_sum + self.female_artificial_sum + self.child_artificial_sum + self.overlap_artificial_sum
+        self.mf_artificial_fn = self.artificial_male_sum + self.artificial_female_sum + self.artificial_child_sum + self.artificial_overlap_sum + self.artificial_noise_sum
+
+    def calc_stats(self):
+
+        self.adult_tpr = float(self.adult_tp) / (self.adult_tp + self.adult_fn)
+        self.adult_spc = float(self.adult_tn) / (self.adult_fp + self.adult_tn)
+        self.adult_ppv = float(self.adult_tp) / (self.adult_tp + self.adult_fp)
+        self.adult_npv = float(self.adult_tn) / (self.adult_tn + self.adult_fn)
+        self.adult_fpr = float(self.adult_fp) / (self.adult_fp + self.adult_tn)
+        self.adult_fdr = float(self.adult_fp) / (self.adult_fp + self.adult_tp)
+        self.adult_fnr = float(self.adult_fn) / (self.adult_fn + self.adult_tp)
+        self.adult_f1 = float(2*self.adult_tp) / (2*self.adult_tp + self.adult_fp + self.adult_fn)
+
+        self.child_tpr = float(self.child_tp) / (self.child_tp + self.child_fn)
+        self.child_spc = float(self.child_tn) / (self.child_fp + self.child_tn)
+        self.child_ppv = float(self.child_tp) / (self.child_tp + self.child_fp)
+        self.child_npv = float(self.child_tn) / (self.child_tn + self.child_fn)
+        self.child_fpr = float(self.child_fp) / (self.child_fp + self.child_tn)
+        self.child_fdr = float(self.child_fp) / (self.child_fp + self.child_tp)
+        self.child_fnr = float(self.child_fn) / (self.child_fn + self.child_tp)
+        self.child_f1 = float(2*self.child_tp) / (2*self.child_tp + self.child_fp + self.child_fn)
+
+        self.artificial_tpr = float(self.artificial_tp) / (self.artificial_tp + self.artificial_fn)
+        self.artificial_spc = float(self.artificial_tn) / (self.artificial_fp + self.artificial_tn)
+        self.artificial_ppv = float(self.artificial_tp) / (self.artificial_tp + self.artificial_fp)
+        self.artificial_npv = float(self.artificial_tn) / (self.artificial_tn + self.artificial_fn)
+        self.artificial_fpr = float(self.artificial_fp) / (self.artificial_fp + self.artificial_tn)
+        self.artificial_fdr = float(self.artificial_fp) / (self.artificial_fp + self.artificial_tp)
+        self.artificial_fnr = float(self.artificial_fn) / (self.artificial_fn + self.artificial_tp)
+        self.artificial_f1 = float(2*self.artificial_tp) / (2*self.artificial_tp + self.artificial_fp + self.artificial_fn)
+
+        self.male_tpr = float(self.male_tp) / (self.male_tp + self.male_fn)
+        self.male_spc = float(self.male_tn) / (self.male_fp + self.male_tn)
+        self.male_ppv = float(self.male_tp) / (self.male_tp + self.male_fp)
+        self.male_npv = float(self.male_tn) / (self.male_tn + self.male_fn)
+        self.male_fpr = float(self.male_fp) / (self.male_fp + self.male_tn)
+        self.male_fdr = float(self.male_fp) / (self.male_fp + self.male_tp)
+        self.male_fnr = float(self.male_fn) / (self.male_fn + self.male_tp)
+        self.male_f1 = float(2*self.male_tp) / (2*self.male_tp + self.male_fp + self.male_fn)
+
+        self.female_tpr = float(self.female_tp) / (self.female_tp + self.female_fn)
+        self.female_spc = float(self.female_tn) / (self.female_fp + self.female_tn)
+        self.female_ppv = float(self.female_tp) / (self.female_tp + self.female_fp)
+        self.female_npv = float(self.female_tn) / (self.female_tn + self.female_fn)
+        self.female_fpr = float(self.female_fp) / (self.female_fp + self.female_tn)
+        self.female_fdr = float(self.female_fp) / (self.female_fp + self.female_tp)
+        self.female_fnr = float(self.female_fn) / (self.female_fn + self.female_tp)
+        self.female_f1 = float(2*self.female_tp) / (2*self.female_tp + self.female_fp + self.female_fn)
+
+        self.mf_child_tpr = float(self.mf_child_tp) / (self.mf_child_tp + self.mf_child_fn)
+        self.mf_child_spc = float(self.mf_child_tn) / (self.mf_child_fp + self.mf_child_tn)
+        self.mf_child_ppv = float(self.mf_child_tp) / (self.mf_child_tp + self.mf_child_fp)
+        self.mf_child_npv = float(self.mf_child_tn) / (self.mf_child_tn + self.mf_child_fn)
+        self.mf_child_fpr = float(self.mf_child_fp) / (self.mf_child_fp + self.mf_child_tn)
+        self.mf_child_fdr = float(self.mf_child_fp) / (self.mf_child_fp + self.mf_child_tp)
+        self.mf_child_fnr = float(self.mf_child_fn) / (self.mf_child_fn + self.mf_child_tp)
+        self.mf_child_f1 = float(2*self.mf_child_tp) / (2*self.mf_child_tp + self.mf_child_fp + self.mf_child_fn)
+
+        self.mf_artificial_tpr = float(self.mf_artificial_tp) / (self.mf_artificial_tp + self.mf_artificial_fn)
+        self.mf_artificial_spc = float(self.mf_artificial_tn) / (self.mf_artificial_fp + self.mf_artificial_tn)
+        self.mf_artificial_ppv = float(self.mf_artificial_tp) / (self.mf_artificial_tp + self.mf_artificial_fp)
+        self.mf_artificial_npv = float(self.mf_artificial_tn) / (self.mf_artificial_tn + self.mf_artificial_fn)
+        self.mf_artificial_fpr = float(self.mf_artificial_fp) / (self.mf_artificial_fp + self.mf_artificial_tn)
+        self.mf_artificial_fdr = float(self.mf_artificial_fp) / (self.mf_artificial_fp + self.mf_artificial_tp)
+        self.mf_artificial_fnr = float(self.mf_artificial_fn) / (self.mf_artificial_fn + self.mf_artificial_tp)
+        self.mf_artificial_f1 = float(2*self.mf_artificial_tp) / (2*self.mf_artificial_tp + self.mf_artificial_fp + self.mf_artificial_fn)
 
 if __name__ == "__main__":
 
