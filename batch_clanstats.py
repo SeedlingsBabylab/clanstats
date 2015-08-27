@@ -917,6 +917,10 @@ incorr_overlap:\t{}\n".format(self.total,
         self.artificial_fn = self.artificial_adult_sum + self.artificial_child_sum + self.artificial_overlap_sum + self.artificial_noise_sum
 
 
+        self.overlap_tp = self.corr_overlap_sum
+
+
+
         self.male_tp = self.corr_male_sum
         self.male_tn = self.corr_female_sum + self.female_child_sum + self.female_artificial_sum +\
                        self.female_overlap_sum + self.female_noise_sum + self.child_female_sum +\
@@ -964,6 +968,7 @@ incorr_overlap:\t{}\n".format(self.total,
                                 self.corr_overlap_sum + self.overlap_noise_sum
         self.mf_artificial_fp = self.male_artificial_sum + self.female_artificial_sum + self.child_artificial_sum + self.overlap_artificial_sum
         self.mf_artificial_fn = self.artificial_male_sum + self.artificial_female_sum + self.artificial_child_sum + self.artificial_overlap_sum + self.artificial_noise_sum
+
 
     def calc_stats(self):
 

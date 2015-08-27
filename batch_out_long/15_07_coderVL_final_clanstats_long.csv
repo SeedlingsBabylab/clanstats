@@ -1,0 +1,17 @@
+15,07,male_correct,MAN,4
+15,07,male_incorrect,FAN,6
+15,07,male_incorrect,OLN,1
+15,07,male_incorrect,CXN,1
+15,07,male_incorrect,OLF,1
+15,07,female_correct,FAN,117
+15,07,female_correct,FAF,2
+15,07,female_incorrect,CHN,25
+15,07,female_incorrect,OLN,23
+15,07,female_incorrect,CXN,5
+15,07,female_incorrect,NOF,1
+15,07,female_incorrect,SIL,1
+15,07,female_incorrect,MAN,1
+15,07,child_correct,CHN,2
+15,07,child_correct,CXN,1
+15,07,child_incorrect,FAN,3
+15,07,child_incorrect,OLN,3

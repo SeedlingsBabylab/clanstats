@@ -173,11 +173,16 @@ class ClanFile:
         if os.path.isdir(output_path):
             out_name = os.path.splitext(path)[0]
             out_name = os.path.split(out_name)[1] + "_clanstats.csv"
+            long_out_name = out_name.replace(".csv", "_long.csv")
             self.out_path = os.path.join(output_path, out_name)
+            self.long_out_path = os.path.join(output_path, long_out_name)
         else:
             self.out_path = output_path
+            self.long_out_path = output_path
         # self.out_path = output_path
         self.filename = os.path.split(path)[1]
+        self.subject = self.filename[0:2]
+        self.month = self.filename[3:5]
         self.annotated = False
         self.clan_intervals = []
         self.entries = []
@@ -266,8 +271,8 @@ class ClanFile:
         print self.incorrect_artificial_dist
 
 
-        self.export()
-
+        #self.export()
+        self.long_export()
 
     def parse_clan(self):
         last_line = ""
@@ -591,6 +596,34 @@ class ClanFile:
             file.write("incorrect_artificial_distribution:\t{}\n".format(self.incorrect_artificial_dist.most_common()))
             file.write("incorrect_overlap_distribution:\t{}\n".format(self.incorrect_overlap_dist.most_common()))
 
+    def long_export(self):
+        with open(self.long_out_path, "w") as file:
+            writer = csv.writer(file)
+
+            for element in self.correct_male_dist.most_common():
+                writer.writerow([self.subject, self.month, "male_correct", element[0], element[1]])
+            for element in self.incorrect_male_dist.most_common():
+                writer.writerow([self.subject, self.month, "male_incorrect", element[0], element[1]])
+
+            for element in self.correct_female_dist.most_common():
+                writer.writerow([self.subject, self.month, "female_correct", element[0], element[1]])
+            for element in self.incorrect_female_dist.most_common():
+                writer.writerow([self.subject, self.month, "female_incorrect", element[0], element[1]])
+
+            for element in self.correct_child_dist.most_common():
+                writer.writerow([self.subject, self.month, "child_correct", element[0], element[1]])
+            for element in self.incorrect_child_dist.most_common():
+                writer.writerow([self.subject, self.month, "child_incorrect", element[0], element[1]])
+
+            for element in self.correct_artificial_dist.most_common():
+                writer.writerow([self.subject, self.month, "artificial_correct", element[0], element[1]])
+            for element in self.incorrect_artificial_dist.most_common():
+                writer.writerow([self.subject, self.month, "artificial_incorrect", element[0], element[1]])
+
+            for element in self.correct_overlap_dist.most_common():
+                writer.writerow([self.subject, self.month, "overlap_correct", element[0], element[1]])
+            for element in self.incorrect_overlap_dist.most_common():
+                writer.writerow([self.subject, self.month, "overlap_incorrect", element[0], element[1]])
 
 class ClanDir:
     def __init__(self, path, output_path, window_size):
