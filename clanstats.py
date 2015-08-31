@@ -251,12 +251,26 @@ class ClanFile:
         self.incorrect_artificial_dist = self.count_incorrect(self.incorrect_artificial)
         self.incorrect_overlap_dist = self.count_incorrect(self.incorrect_overlap)
 
+        self.incorrect_adult_dist2 = self.count_incorrect2(self.incorrect_adult)
+        self.incorrect_child_dist2 = self.count_incorrect2(self.incorrect_child)
+        self.incorrect_female_dist2 = self.count_incorrect2(self.incorrect_female)
+        self.incorrect_male_dist2 = self.count_incorrect2(self.incorrect_male)
+        self.incorrect_artificial_dist2 = self.count_incorrect2(self.incorrect_artificial)
+        self.incorrect_overlap_dist2 = self.count_incorrect2(self.incorrect_overlap)
+
         self.correct_adult_dist = self.count_correct(self.correct_adult)
         self.correct_child_dist = self.count_correct(self.correct_child)
         self.correct_female_dist = self.count_correct(self.correct_female)
         self.correct_male_dist = self.count_correct(self.correct_male)
         self.correct_artificial_dist = self.count_correct(self.correct_artificial)
         self.correct_overlap_dist = self.count_correct(self.correct_overlap)
+
+        self.correct_adult_dist2 = self.count_correct2(self.correct_adult)
+        self.correct_child_dist2 = self.count_correct2(self.correct_child)
+        self.correct_female_dist2 = self.count_correct2(self.correct_female)
+        self.correct_male_dist2 = self.count_correct2(self.correct_male)
+        self.correct_artificial_dist2 = self.count_correct2(self.correct_artificial)
+        self.correct_overlap_dist2 = self.count_correct2(self.correct_overlap)
 
         self.speakers = Counter([entry[0][0][1] for entry in self.windows]).most_common()
 
@@ -558,12 +572,26 @@ class ClanFile:
         result = Counter(uncounted)
         return result
 
+    def count_incorrect2(self, incorrect):
+        uncounted = []
+        for entry in incorrect:
+            uncounted.append((entry[0][0][0], entry[0][0][1]))
+        #result = Counter(uncounted)
+        return uncounted
+
     def count_correct(self, correct):
         uncounted = []
         for entry in correct:
             uncounted.append(entry[1][0][0])
         result = Counter(uncounted)
         return result
+
+    def count_correct2(self, correct):
+        uncounted = []
+        for entry in correct:
+            uncounted.append((entry[1][0][0], entry[1][0][1]))
+        #result = Counter(uncounted)
+        return uncounted
 
     def export(self):
 
@@ -599,30 +627,55 @@ class ClanFile:
     def long_export(self):
         with open(self.long_out_path, "w") as file:
             writer = csv.writer(file)
+            writer.writerow(["subject", "month", "speaker_category", "classifier", "annotation"])
+            # for element in self.correct_male_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "male_correct", element[0], element[1]])
+            # for element in self.incorrect_male_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "male_incorrect", element[0], element[1]])
 
-            for element in self.correct_male_dist.most_common():
+            for element in self.correct_male_dist2:
                 writer.writerow([self.subject, self.month, "male_correct", element[0], element[1]])
-            for element in self.incorrect_male_dist.most_common():
+            for element in self.incorrect_male_dist2:
                 writer.writerow([self.subject, self.month, "male_incorrect", element[0], element[1]])
 
-            for element in self.correct_female_dist.most_common():
+            # for element in self.correct_female_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "female_correct", element[0], element[1]])
+            # for element in self.incorrect_female_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "female_incorrect", element[0], element[1]])
+
+            for element in self.correct_female_dist2:
                 writer.writerow([self.subject, self.month, "female_correct", element[0], element[1]])
-            for element in self.incorrect_female_dist.most_common():
+            for element in self.incorrect_female_dist2:
                 writer.writerow([self.subject, self.month, "female_incorrect", element[0], element[1]])
 
-            for element in self.correct_child_dist.most_common():
+            # for element in self.correct_child_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "child_correct", element[0], element[1]])
+            # for element in self.incorrect_child_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "child_incorrect", element[0], element[1]])
+
+            for element in self.correct_child_dist2:
                 writer.writerow([self.subject, self.month, "child_correct", element[0], element[1]])
-            for element in self.incorrect_child_dist.most_common():
+            for element in self.incorrect_child_dist2:
                 writer.writerow([self.subject, self.month, "child_incorrect", element[0], element[1]])
 
-            for element in self.correct_artificial_dist.most_common():
+            # for element in self.correct_artificial_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "artificial_correct", element[0], element[1]])
+            # for element in self.incorrect_artificial_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "artificial_incorrect", element[0], element[1]])
+
+            for element in self.correct_artificial_dist2:
                 writer.writerow([self.subject, self.month, "artificial_correct", element[0], element[1]])
-            for element in self.incorrect_artificial_dist.most_common():
+            for element in self.incorrect_artificial_dist2:
                 writer.writerow([self.subject, self.month, "artificial_incorrect", element[0], element[1]])
 
-            for element in self.correct_overlap_dist.most_common():
+            # for element in self.correct_overlap_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "overlap_correct", element[0], element[1]])
+            # for element in self.incorrect_overlap_dist.most_common():
+            #     writer.writerow([self.subject, self.month, "overlap_incorrect", element[0], element[1]])
+
+            for element in self.correct_overlap_dist2:
                 writer.writerow([self.subject, self.month, "overlap_correct", element[0], element[1]])
-            for element in self.incorrect_overlap_dist.most_common():
+            for element in self.incorrect_overlap_dist2:
                 writer.writerow([self.subject, self.month, "overlap_incorrect", element[0], element[1]])
 
 class ClanDir:

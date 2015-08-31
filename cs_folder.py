@@ -4,11 +4,25 @@ import subprocess as sp
 
 if __name__ == "__main__":
 
-    clan_files = os.listdir(sys.argv[1])
+    input = sys.argv[1]
+    output = sys.argv[2]
+
+    clan_files = os.listdir(input)
 
     for file in clan_files:
-        command = ["python", "clanstats.py", os.path.join(sys.argv[1], file), sys.argv[2], str(0)]
+        command = ["python", "clanstats.py", os.path.join(sys.argv[1], file), output, str(0)]
 
         pipe = sp.Popen(command, stdout=sp.PIPE, bufsize=10**8)
         pipe.communicate()
+
+
+    aggregate = []
+
+    with open("aggregate_long.csv", "wb") as aggregate_out:
+        aggregate_out.write("subject,month,speaker_category,classifier,annotation\n")
+        for file in os.listdir(output):
+            with open(os.path.join(output, file), "rU") as single_file:
+                single_file.readline()
+                for line in single_file:
+                    aggregate_out.write(line)
 
