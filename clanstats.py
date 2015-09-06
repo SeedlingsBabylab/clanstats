@@ -241,8 +241,13 @@ class ClanFile:
 
         self.entry_regx = re.compile(re1+re2+re3+re4+re5+re6, re.IGNORECASE | re.DOTALL)
 
-        self.parse_clan()
-        self.build_windows()
+        if self.clanfile_path.endswith(".cex"):
+            self.parse_clan()
+            self.build_windows()
+        if self.clanfile_path.endswith(".csv"):
+            self.parse_csv()
+            print "hello"
+
 
         self.incorrect_adult_dist = self.count_incorrect(self.incorrect_adult)
         self.incorrect_child_dist = self.count_incorrect(self.incorrect_child)
@@ -345,6 +350,21 @@ class ClanFile:
                                       "NA",
                                       interval[0],
                                       interval[1])])
+
+    def parse_csv(self):
+
+        with open(self.clanfile_path, "rU") as file:
+            reader = csv.reader(file)
+            next(reader, None)
+            for row in reader:
+                classifier = row[0][1:]
+                annotation = row[4]
+                onset = row[5].split("_")[0]
+                offset = row[5].split("_")[1]
+                current = [(classifier,annotation,onset,offset)]
+                window = [[(classifier,annotation,onset,offset)]]
+                self.process_window(current, window)
+
 
     def build_windows(self):
 
@@ -723,6 +743,8 @@ if __name__ == "__main__":
 
     if sys.argv[1].endswith(".cex"):                # single file
         clan_file = ClanFile(sys.argv[1], sys.argv[2], int(sys.argv[3]))
+    elif sys.argv[1].endswith(".csv"):
+        clan_file = ClanFile(sys.argv[1], sys.argv[2], 0)
     else:                                           # directory
         clan_dir = ClanDir(sys.argv[1], sys.argv[2], int(sys.argv[3]))
 
