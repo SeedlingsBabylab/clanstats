@@ -246,7 +246,6 @@ class ClanFile:
             self.build_windows()
         if self.clanfile_path.endswith(".csv"):
             self.parse_csv()
-            print "hello"
 
 
         self.incorrect_adult_dist = self.count_incorrect(self.incorrect_adult)
@@ -726,10 +725,9 @@ class ClanDir:
 
 def print_usage():
     print "\nUSAGE: \n"
-    print "You can run clanstats on a single clan file, or a"
-    print "directory containing many clan files. \n"
-    print "$ python clanstats.py /path/to/clanfile.cex /path/to/output.csv window_size\n\nor..."
-    print "\n$ python clanstats.py /path/to/clanfile-directory/ /path/to/output-directory window_size"
+    print "You can run clanstats on a single clan file or on csv files produced by parse_clan\n"
+    print "$ python clanstats.py /path/to/clanfile.cex /path/to/output.csv window_size\n\n"
+
 
 if __name__ == "__main__":
 
