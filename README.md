@@ -7,6 +7,7 @@
 ### clanstats.py
 
 This script will output the long form speaker/classifier data when given a single .cex clan file. It takes 3 arguments.
+The .cex file (first argument) can also be replaced by the .csv output produced by parse_clan.
 
 ``` bash
 $: python clanstats.py  /path/to/clanfile.cex   /path/to/output   window_size
@@ -14,7 +15,7 @@ $: python clanstats.py  /path/to/clanfile.cex   /path/to/output   window_size
 
 ### cs_folder.py
 
-This script will run clanstats.py on every clan file in a directory passed as argument.
+This script will run clanstats.py on every clan file (or parse_clan .csv) in a directory passed as argument.
 
 ``` bash
 $: python cs_folder.py  /path/to/clanfiles/  /output/path/
