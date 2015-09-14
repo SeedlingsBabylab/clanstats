@@ -6,11 +6,12 @@ if __name__ == "__main__":
 
     input = sys.argv[1]
     output = sys.argv[2]
+    window_size = sys.argv[3]
 
     clan_files = os.listdir(input)
 
     for file in clan_files:
-        command = ["python", "clanstats.py", os.path.join(sys.argv[1], file), output, str(0)]
+        command = ["python", "clanstats.py", os.path.join(sys.argv[1], file), output, str(window_size)]
 
         pipe = sp.Popen(command, stdout=sp.PIPE, bufsize=10**8)
         pipe.communicate()
