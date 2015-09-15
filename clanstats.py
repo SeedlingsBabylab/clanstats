@@ -51,7 +51,9 @@ male_codes = [
                 "MF2",  # male family friends 2-4
                 "MF3",
                 "MF4",
-                "MF5"
+                "MF5",
+                "UM1",  # unknown male 1
+                "UM2"   # unknown male 2
             ]
 
 female_codes = [
@@ -125,6 +127,7 @@ just_adult_codes = [
                 "AD1",
                 "ADU",
                 "ADU2",
+                "ADU3",
                 "NB1"
 
 ]
@@ -141,8 +144,8 @@ artificial_codes = [
                 "RAD",  # radio
                 "CAR",  # car voice
                 "TVS",  # youtube characters
-                "ATV"
-
+                "ATV",
+                "TVM"
                 ]
 
 overlap_codes = [
@@ -301,7 +304,9 @@ class ClanFile:
             entries = None
             interval = [None, None]
             interval_regx_result = None
-            for line in file:
+            for index, line in enumerate(file):
+                #print index
+                #print line
                 if line.startswith("*"):
                     multi_line = ""
                     clan_code = line[1:4]
@@ -319,8 +324,14 @@ class ClanFile:
                 if line.startswith("\t"):
                     if last_line:
                         line += last_line
+
                         interval_regx_result = self.interval_regx.search(line)
-                        entries = self.entry_regx.findall(line)
+                        if interval_regx_result is None:
+                            last_line = line
+                            continue
+                        else:
+                            last_line = ""
+                            entries = self.entry_regx.findall(line)
 
                         interval = interval_regx_result.group().split("_")
 

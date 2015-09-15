@@ -4709,7 +4709,7 @@
 *CHN:	7955550_7955680
 *CHN:	&=crying 7955680_7956150
 *OLN:	7956150_7957030
-*FAN:	apples &n|y|BRo banoonoos &n|y|BRO 7957030_7958030
+*FAN:	apples &n|y|BRO banoonoos &n|y|BRO 7957030_7958030
 %com:	|RC|204|48|0|XIC|TIFI|FI|
 *CHN:	&=vocalization 7958030_7958730
 %com:	|RC|204|49|1|XIC|TIFR|FI|
@@ -6812,7 +6812,7 @@
 *OLF:	10423860_10425180
 *FAN:	10425180_10426180
 %com:	|RC|287|83|6|CIC|TIFE|FI|
-*OLF:	thighs &n|y|BRo 10426180_10427780
+*OLF:	thighs &n|y|BRO 10426180_10427780
 *NOF:	10427780_10429270
 *FAN:	thigh &n|y|BRO 10429270_10430510
 %com:	|EC|287|83|6|CIC|NT|FH|
@@ -25624,7 +25624,7 @@
 *FAN:	baby+armor &d|n|BRO 39817700_39818950
 %com:	baby+armor refers to the fact that his diaper protects him
 %com:	|RC|1014|314|2|XIC|NT|FH|
-*OLN:	baby+armor &n|n|BRo 39818950_39821590
+*OLN:	baby+armor &n|n|BRO 39818950_39821590
 *FAN:	39821590_39822750
 %com:	|RC|1014|314|2|XIC|NT|FH|
 *OLN:	39822750_39823760
