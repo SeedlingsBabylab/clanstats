@@ -737,6 +737,7 @@ class ClanDir:
 def print_usage():
     print "\nUSAGE: \n"
     print "You can run clanstats on a single clan file or on csv files produced by parse_clan\n"
+    print "When running on csv files, the window size must be 0"
     print "$ python clanstats.py /path/to/clanfile.cex /path/to/output.csv window_size\n\n"
 
 
