@@ -1,0 +1,8 @@
+Eb pulled all csvs from 01-43 into the csv folder. Notable issues:
+01_06, 02_06, 03_06 there are multiples, went with DL_AS one because it's in right format
+01_07 & 02_07 used consensus file
+27_06 and 29_07 21_06 21_07 22_06, 22_07, 23_06, 26_06 had comments columns; deleted and replaced file
+ 
+07_06, 23_06, 26_06, 28_07 empty column
+
+a few ad incorrect header columns: 40, 27_06 no underscore; 36_07 AF2 header

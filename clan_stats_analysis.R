@@ -4,9 +4,20 @@ library(magrittr)
 library(tidyr)
 library(ggplot2)
 
-setwd("/Users/elikab/Desktop/clanstats_git/clanstats/batch_out_really_long/")
-filenames <- list.files(path = "/Users/elikab/Desktop/clanstats_git/clanstats/batch_out_really_long/")
-clanstats <- do.call("rbind", lapply(filenames, read.csv, header = TRUE))
+setwd("/Users/elikab/Desktop/clanstats_git/clanstats/csv_data_01-43_6_7month/")
+filenames <- list.files(path = "/Users/elikab/Desktop/clanstats_git/clanstats/csv_data_01-43_6_7month/")
+
+clanstats <- do.call(rbind, lapply(filenames, 
+                      function(X) {
+  data.frame(id = basename(X), read.csv(X))}))
+
+summary(clanstats)
+
+#clanstats <- do.call("rbind", lapply(filenames, read.csv, header = TRUE))
+write.csv(clanstats, "concat_6_7_basiclevel.csv", row.names= F)
+
+levels(clanstats$speaker)
+
 head(clanstats)
 dim(clanstats)
 clanstats <- clanstats %>%
