@@ -114,7 +114,7 @@ child_codes = [
                 "KID",  # friend's child
                 "MCH",   # male child (07_07)
                 "COU",   # cousin
-                "STY"   # sister/toy in unison
+                #"STY"   # sister/toy in unison
             ]
 
 male_female_codes = [
@@ -234,6 +234,7 @@ class ClanFile:
         self.correct_overlap_dist = []
 
         self.interval_regx = re.compile("(\d+_\d+)")
+        self.interval_regx_cha = re.compile("(\025\d+_\d+)")
 
         re1 ='(&)'	             # ampersand
         re2 ='(.)'	             # utterance type
@@ -244,8 +245,22 @@ class ClanFile:
 
         self.entry_regx = re.compile(re1+re2+re3+re4+re5+re6, re.IGNORECASE | re.DOTALL)
 
+        re1cha='((?:[a-z][a-z0-9_+]*))' # the word
+        re2cha='(\\s+)'	                # whitespace
+        re3cha='(&=)'	                # &=
+        re4cha='(.)'	                # utterance_type
+        re5cha='(_+)'	                # _
+        re6cha='(.)'	                # object_present
+        re7cha='(_+)'	                # _
+        re8cha='((?:[a-z][a-z0-9]*))'   # speaker
+
+        self.entry_regx_cha = re.compile(re1cha+re2cha+re3cha+re4cha+re5cha+re6cha+re7cha+re8cha, re.IGNORECASE | re.DOTALL)
+
         if self.clanfile_path.endswith(".cex"):
-            self.parse_clan()
+            self.parse_cex()
+            self.build_windows()
+        if self.clanfile_path.endswith(".cha"):
+            self.parse_cha()
             self.build_windows()
         if self.clanfile_path.endswith(".csv"):
             self.parse_csv()
@@ -295,7 +310,7 @@ class ClanFile:
         #self.export()
         self.long_export()
 
-    def parse_clan(self):
+    def parse_cex(self):
         last_line = ""
         multi_line = ""
 
@@ -351,7 +366,9 @@ class ClanFile:
                         temp[index] = (clan_code,
                                        speaker_code,
                                        interval[0],
-                                       interval[1])
+                                       interval[1],
+                                       utt_type,
+                                       present)
                         self.entry_count += 1
                     self.lines.append(temp)
                 else:
@@ -360,6 +377,124 @@ class ClanFile:
                                       "NA",
                                       interval[0],
                                       interval[1])])
+
+
+    def parse_cha(self):
+
+        clan_code = None
+
+        last_line = ""
+        multi_line = ""
+
+        prev_interval = [None, None]
+        curr_interval = [None, None]
+
+        with open(self.clanfile_path, "rU") as input:
+            for index, line in enumerate(input):
+
+                if line.startswith("%"):
+                    continue
+                if line.startswith("*"):
+
+                    clan_code = line[1:4]
+                    # reset multi_line
+                    multi_line = ""
+                    interval_reg_result = self.interval_regx_cha.search(line)
+
+                    if interval_reg_result is None:
+                        #print "interval regx returned none. clan line: " + str(index)
+                        last_line = line
+                        multi_line += line
+                        continue
+                     # rearrange previous and current intervals
+                    prev_interval[0] = curr_interval[0]
+                    prev_interval[1] = curr_interval[1]
+
+                    # set the new curr_interval
+                    interval_str = interval_reg_result.group().replace("\025", "")
+                    interval = interval_str.split("_")
+                    curr_interval[0] = int(interval[0])
+                    curr_interval[1] = int(interval[1])
+
+                    # find correctly formatted entries
+                    entries = self.entry_regx_cha.findall(line)
+
+
+                    if entries:
+                        temp = [None] * len(entries)
+                        for index, entry in enumerate(entries):
+                            word         = entry[0]
+                            amp          = entry[2]
+                            utt_type     = entry[3]
+                            first_pipe   = entry[4]
+                            present      = entry[5]
+                            second_pipe  = entry[6]
+                            speaker_code = entry[7]
+                            #comparison = self.check_code(clan_code, speaker_code)
+                            temp[index] = (clan_code,
+                                           speaker_code,
+                                           interval[0],
+                                           interval[1],
+                                           utt_type,
+                                           present)
+                            self.entry_count += 1
+
+                        self.lines.append(temp)
+
+
+                    else:
+                        # no words on this line, just use "NA" in place of speaker code
+                        self.lines.append([(clan_code,
+                                            "NA",
+                                            interval[0],
+                                            interval[1])])
+                    last_line = line
+
+                # intervals spanning more than 1 line start with a tab (\t)
+                if line.startswith("\t"):
+                    interval_reg_result = self.interval_regx_cha.search(line)
+
+                    if interval_reg_result is None:
+                        multi_line += line
+                        continue
+
+                    prev_interval[0] = curr_interval[0]
+                    prev_interval[1] = curr_interval[1]
+
+                    # set the new curr_interval
+                    interval_str = interval_reg_result.group().replace("\025", "")
+                    interval = interval_str.split("_")
+                    curr_interval[0] = int(interval[0])
+                    curr_interval[1] = int(interval[1])
+
+                    entries = self.entry_regx.findall(multi_line + line)
+
+
+                    if entries:
+                        temp = [None] * len(entries)
+                        for index, entry in enumerate(entries):
+                            word         = entry[0]
+                            amp          = entry[2]
+                            utt_type     = entry[3]
+                            first_pipe   = entry[4]
+                            present      = entry[5]
+                            second_pipe  = entry[6]
+                            speaker_code = entry[7]
+                            #comparison = self.check_code(clan_code, speaker_code)
+                            temp[index] = (clan_code,
+                                           speaker_code,
+                                           interval[0],
+                                           interval[1],
+                                           utt_type,
+                                           present)
+                            self.entry_count += 1
+
+                        self.lines.append(temp)
+
+                    multi_line = "" # empty the mutiple line buffer
+
+        print "done parsing cha"
+
 
     def parse_csv(self):
 
@@ -749,13 +884,14 @@ if __name__ == "__main__":
     clan_file = None
     clan_dir = None
 
+    input = sys.argv[1]
     # handle single files and directories differently
 
-    if sys.argv[1].endswith(".cex"):                # single file
+    if input.endswith(".cex") or input.endswith(".cha"):
         clan_file = ClanFile(sys.argv[1], sys.argv[2], int(sys.argv[3]))
     elif sys.argv[1].endswith(".csv"):
         clan_file = ClanFile(sys.argv[1], sys.argv[2], 0)
-    else:                                           # directory
-        clan_dir = ClanDir(sys.argv[1], sys.argv[2], int(sys.argv[3]))
-
-
+    # else:                                           # directory
+    #     clan_dir = ClanDir(sys.argv[1], sys.argv[2], int(sys.argv[3]))
+    #
+    #
