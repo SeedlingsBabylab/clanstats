@@ -3,6 +3,7 @@ library(dplyr)
 library(magrittr)
 library(tidyr)
 library(ggplot2)
+library(irr)
 
 setwd("/Users/elikab/Desktop/clanstats_git/clanstats/csv_data_01-43_6_7month/")
 filenames <- list.files(path = "/Users/elikab/Desktop/clanstats_git/clanstats/csv_data_01-43_6_7month/")
@@ -13,15 +14,23 @@ clanstats <- do.call(rbind, lapply(filenames,
 
 summary(clanstats)
 
-#clanstats <- do.call("rbind", lapply(filenames, read.csv, header = TRUE))
-write.csv(clanstats, "concat_6_7_basiclevel.csv", row.names= F)
+clanstats <- do.call("rbind", lapply(filenames, read.csv, header = TRUE))
 
-levels(clanstats$speaker)
+setwd("/Users/elikab/Desktop/clanstats_git/clanstats/")
+write.csv(clanstats, "concat_6_7_basiclevel_9-17-15_uncleaned.csv", row.names= F)
+
+clanstats_tempfixed <- read.csv("concat_6_7_basiclevel_tempfixed_9-17-15.csv", header=T)
+summary(clanstats_tempfixed)
+levels(clanstats_tempfixed$speaker)
 
 head(clanstats)
 dim(clanstats)
-clanstats <- clanstats %>%
-  mutate(lena_cat = as.factor(ifelse(classifier %in% c("MAN","MAF"),"adu_m",
+clanstats <- clanstats_tempfixed %>%
+  rename("annotation" = speaker)%>%
+  mutate(classifier = as.factor(substring(tier, 2,4)),
+         subject = as.factor(substring(id, 1,2)),
+         month = as.factor(substring(id, 4,5)),
+    lena_cat = as.factor(ifelse(classifier %in% c("MAN","MAF"),"adu_m",
                 ifelse(classifier %in% c("FAN","FAF"),"adu_f",
                        ifelse(classifier %in% c("CHN","CHF","CXN","CXF"),"child",
                               ifelse(classifier %in% c("TVN","TVF"),"artif",
@@ -111,7 +120,10 @@ clanstats <- clanstats %>%
                                                                           "STV",
                                                                           "BTY",
                                                                           "MTV",
-                                                                          "MTY"), "multi","misc")))))))
+                                                                          "MTY"), "multi","misc_adult")))))))
+#AD1 MOM ADU FTS MAS NB1 MMT FAY UKC EAW AFW AF2 ADC DOC WAI LF2 LF3 AD4 LF1
+#TEA CH2 LLF LFM LFF CF2 CFF SST YBS MBR AD5 PAP AUY UF3
+unique(subset(clanstats, human_cat =="misc_adult")$annotation)
 clanstats_matrix <- clanstats%>%
   group_by(lena_cat)%>%
   summarise(num_lenacat = n())%>%
@@ -130,7 +142,7 @@ clanstats_conf <- clanstats %>%
 as.data.frame(clanstats_conf)
 
 lena_comparison_table <-clanstats %>%
-  mutate(human_cat_collapsed = ifelse(human_cat %in% c("adu_f", "adu_m"),"adult", 
+  mutate(human_cat_collapsed = ifelse(human_cat %in% c("adu_f", "adu_m", "misc_adult"),"adult", 
                                       ifelse(human_cat %in% c("multi","other"),"other", 
                                              ifelse(human_cat == "artif", "TV","child"))),
          lena_cat_collapsed = ifelse(lena_cat %in% c("adu_f", "adu_m"),"adult", 
@@ -141,8 +153,16 @@ lena_comparison_table <-clanstats %>%
   group_by(human_cat_collapsed,lena_cat_collapsed)%>%
   tally()%>%
   mutate(n_prop = round(n/sum(n),2))
-  
-summary(clanstats)  
+
+summary(clanstats)
+#clanstats$object_present[clanstats$object_present == "b"]<-"n"
+#clanstats$object_present[clanstats$object_present == "d"]<-"y"
+#clanstats$utterance_type[clanstats$utterance_type == "|"]<-"d"
+
+#clanstats$utterance_type[clanstats$utterance_type == ""]<-"d"
+levels(clanstats$utterance_type)
+#clanstats <- drop.levels(clanstats)
+
 
 ggplot(clanstats_conf, aes(lena_cat, human_cat, fill = n_prop, alpha=log(n)))+geom_tile()+
 #  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
@@ -156,13 +176,12 @@ ggplot(lena_comparison_table, aes(lena_cat_collapsed, human_cat_collapsed, fill 
                                    size = 16, hjust = 1))
 
 lena_props <-c(.14, .04,.06,.76,.08,0,.71,.21,.07, .76, 0, .17, .82, .02, .04, .12)
-cor.test(lena_comparison_table$n_prop, lena_props, method = "spearman") # .86 correlation, p <.001
+cor.test(lena_comparison_table$n_prop, lena_props, method = "spearman") # .87 correlation, p <.001
 cor.test(as.numeric(as.factor(clanstats$lena_cat)), as.numeric(as.factor(clanstats$human_cat)), method = "spearman")[5]
-?cor.test
-install.packages("irr")
-library(irr)
 
-kappa2(clanstats[6:7],"unweighted")$value
+
+head(clanstats)
+kappa2(clanstats[c(5,8)],"unweighted")$value
 
 clanstats_kappa_tau <- clanstats %>%
   group_by(subject, month)%>%
@@ -176,18 +195,9 @@ cor.test(clanstats_kappa_tau$kappa, clanstats_kappa_tau$tau)
 summary(clanstats_kappa_tau)
 
 # Create a ggheatmap
-ggheatmap <- ggplot(clanstats, aes(lena_cat, Var1, fill = value))+
-  geom_tile(color = "white")+
-  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
-                       midpoint = 0, limit = c(-1,1), name="Pearson\nCorrelation") +
-  theme_minimal()+ # minimal theme
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-                                   size = 12, hjust = 1))+
-  coord_fixed()
 head(clanstats)
 summary(clanstats)
 summary(clanstats$classifier)
-summary(clanstats$speaker_category)
 summary(clanstats$classifier)
 levels(clanstats$annotation)
 
@@ -220,22 +230,11 @@ ggplot(clanstats_sum, aes(subject,numspeakers, color=factor(subject)))+
 
 ggplot(clanstats_sum, aes(numspeakers))+geom_histogram()+facet_wrap(~month, nrow=2)
 
-ggplot(clanstats, aes(speaker_category, fill=classifier))+geom_bar()+
-  theme_bw(base_size=16)
 
-ggplot(clanstats, aes(classifier, fill=speaker_category))+geom_bar()+
-  theme_bw(base_size=16)+
-  
-
-ggplot(clanstats, aes(as.factor(subject),fill=speaker_category))+
-  geom_bar(stat="bin", position = "fill")+theme_bw(base_size=14)
 
 ggplot(clanstats, aes(as.factor(subject),fill=classifier))+
   geom_bar(stat="bin", position = "fill")+theme_bw(base_size=14)
 
-ggplot(clanstats, aes(as.factor(subject),fill=speaker_category))+
-  geom_bar(stat="bin", position = "stack")+theme_bw(base_size=14)+
-  facet_wrap(~month, nrow=2)
 
 ggplot(clanstats, aes(as.factor(subject), fill=annotation))+
   geom_bar(stat="bin", position = "fill")+theme_bw(base_size=14)
@@ -249,5 +248,10 @@ ggplot(clanstats, aes(as.factor(month), fill=human_cat))+
   geom_histogram(stat="bin", position = "stack",)+theme_bw(base_size=10)+
   theme_bw(base_size=18)
 
-malefemale_clanstats<-subset(clanstats, speaker_category %in% c("male_correct", "female_correct", "female_incorrect", "male_incorrect"))
-summary(malefemale_clanstats)
+ggplot(clanstats, aes(as.factor(subject), fill=utterance_type))+
+  geom_histogram(stat="bin", position = "stack")+theme_bw(base_size=10)+
+  theme_bw(base_size=18)+facet_wrap(~month, nrow=2)
+
+ggplot(clanstats, aes(utterance_type, fill=utterance_type))+
+  geom_histogram(stat="bin", position = "stack")+theme_bw(base_size=10)+
+  theme_bw(base_size=18)

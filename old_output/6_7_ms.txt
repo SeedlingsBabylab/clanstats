@@ -1,0 +1,24 @@
+
+total:	33825
+child:	1653
+adult:	30820
+female:	24680
+male:	6082
+artificial:	1174
+overlap:	203
+
+speakers:	[['MOT', 20434], ['FAT', 5508], ['GRM', 2935], ['SIS', 889], ['TOY', 620], ['TVN', 506], ['AUN', 455], ['GRP', 444], ['BRO', 405], ['MT2', 335], ['FFR', 250], ['LFV', 211], ['BR1', 141], ['BR2', 115], ['MTV', 102], ['UNC', 55], ['ADM', 49], ['SIB', 30], ['TVS', 30], ['SI1', 27], ['GTY', 24], ['ADU', 22], ['FTV', 21], ['STY', 19], ['AD1', 16], ['NB1', 16], ['MTY', 14], ['AD2', 13], ['ATV', 10], ['CH1', 9], ['UF1', 9], ['MCH', 8], ['ADF', 8], ['MFT', 7], ['LVF', 7], ['UF2', 7], ['TVF', 7], ['COU', 6], ['MF2', 6], ['MFR', 6], ['FTB', 6], ['FF2', 5], ['STV', 4], ['SI2', 4], ['MAN', 4], ['ADU2', 4], ['FF5', 3], ['FF4', 3], ['MIS', 3], ['AUD', 2], ['FF3', 2], ['AF1', 2], ['MTT', 2], ['FTY', 1], ['LMV', 1], ['FTS', 1], ['AD3', 1], ['TOYS', 1]]
+
+corr_child:	[['CXN', 823], ['CHN', 190], ['CXF', 7]]
+corr_adult:	[['FAN', 16361], ['MAN', 4710], ['FAF', 605], ['MAF', 322]]
+corr_female:	[['FAN', 15401], ['FAF', 572]]
+corr_male:	[['MAN', 3559], ['MAF', 127]]
+corr_artificial:	[['TVN', 180], ['TVF', 55]]
+corr_overlap:	[['OLN', 54], ['OLF', 2]]
+
+incorr_child:	[['OLN', 343], ['FAN', 202], ['OLF', 35], ['NOF', 12], ['TVN', 12], ['MAN', 7], ['TVF', 7], ['SIL', 7], ['MAF', 4], ['FAF', 4]]
+incorr_adult:	[['OLN', 4063], ['CHN', 1336], ['CXN', 1193], ['OLF', 640], ['TVN', 636], ['NOF', 369], ['TVF', 279], ['SIL', 181], ['CXF', 64], ['NON', 38], ['CHF', 23]]
+incorr_female:	[['OLN', 3264], ['CHN', 1183], ['MAN', 1131], ['CXN', 1123], ['OLF', 524], ['TVN', 512], ['NOF', 289], ['TVF', 231], ['MAF', 195], ['SIL', 151], ['CXF', 63], ['NON', 24], ['CHF', 17]]
+incorr_male:	[['FAN', 934], ['OLN', 796], ['CHN', 151], ['TVN', 121], ['OLF', 114], ['NOF', 79], ['CXN', 69], ['TVF', 48], ['FAF', 33], ['SIL', 30], ['NON', 14], ['CHF', 6], ['CXF', 1]]
+incorr_artificial:	[['OLN', 292], ['CXN', 203], ['FAN', 98], ['OLF', 95], ['MAN', 81], ['CHN', 64], ['SIL', 22], ['NOF', 21], ['CXF', 19], ['MAF', 18], ['FAF', 14], ['NON', 11], ['CHF', 1]]
+incorr_overlap:	[['FAN', 45], ['TVN', 45], ['CXN', 32], ['MAN', 13], ['CHN', 8], ['CHF', 1], ['NON', 1], ['CXF', 1], ['SIL', 1]]
