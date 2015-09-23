@@ -236,6 +236,8 @@ class ClanFile:
         self.interval_regx = re.compile("(\d+_\d+)")
         self.interval_regx_cha = re.compile("(\025\d+_\d+)")
 
+        re0 = '((?:[a-z][a-z0-9_+]*))'  #the word
+        re00 = '(\\s+)'          # space
         re1 ='(&)'	             # ampersand
         re2 ='(.)'	             # utterance type
         re3 ='(\\|)'	         # first pipe
@@ -243,7 +245,7 @@ class ClanFile:
         re5 ='(\\|)'	         # second pipe
         re6 ='((?:[a-z][a-z0-9_]*))' # speaker code
 
-        self.entry_regx = re.compile(re1+re2+re3+re4+re5+re6, re.IGNORECASE | re.DOTALL)
+        self.entry_regx = re.compile(re0+re00+re1+re2+re3+re4+re5+re6, re.IGNORECASE | re.DOTALL)
 
         re1cha='((?:[a-z][a-z0-9_+]*))' # the word
         re2cha='(\\s+)'	                # whitespace
@@ -356,17 +358,19 @@ class ClanFile:
                 if entries:
                     temp = [None] * len(entries)
                     for index, entry in enumerate(entries):
-                        amp          = entry[0]
-                        utt_type     = entry[1]
-                        first_pipe   = entry[2]
-                        present      = entry[3]
-                        second_pipe  = entry[4]
-                        speaker_code = entry[5]
+                        word         = entry[0]
+                        amp          = entry[2]
+                        utt_type     = entry[3]
+                        first_pipe   = entry[4]
+                        present      = entry[5]
+                        second_pipe  = entry[6]
+                        speaker_code = entry[7]
                         #comparison = self.check_code(clan_code, speaker_code)
                         temp[index] = (clan_code,
                                        speaker_code,
                                        interval[0],
                                        interval[1],
+                                       word,
                                        utt_type,
                                        present)
                         self.entry_count += 1
@@ -435,6 +439,7 @@ class ClanFile:
                                            speaker_code,
                                            interval[0],
                                            interval[1],
+                                           word,
                                            utt_type,
                                            present)
                             self.entry_count += 1
@@ -485,6 +490,7 @@ class ClanFile:
                                            speaker_code,
                                            interval[0],
                                            interval[1],
+                                           word,
                                            utt_type,
                                            present)
                             self.entry_count += 1
@@ -576,7 +582,7 @@ class ClanFile:
             self.child_count += 1
 
             if child_result:
-                self.correct_child.append((current, child_result[1], window))
+                self.correct_child.append((current, child_result[1], window, child_result[2]))
             else:
                 self.incorrect_child.append((current, window))
 
@@ -594,7 +600,7 @@ class ClanFile:
             self.male_count += 1
 
             if male_result:
-                self.correct_male.append((current, male_result[1], window))
+                self.correct_male.append((current, male_result[1], window, male_result[2]))
             else:
                 self.incorrect_male.append((current, window))
 
@@ -603,7 +609,7 @@ class ClanFile:
             self.female_count += 1
 
             if female_result:
-                self.correct_female.append((current, female_result[1], window))
+                self.correct_female.append((current, female_result[1], window, female_result[2]))
             else:
                 self.incorrect_female.append((current, window))
 
@@ -612,7 +618,7 @@ class ClanFile:
             self.artificial_count += 1
 
             if artificial_result:
-                self.correct_artificial.append((current, artificial_result[1], window))
+                self.correct_artificial.append((current, artificial_result[1], window, artificial_result[2]))
             else:
                 self.incorrect_artificial.append((current, window))
 
@@ -621,7 +627,7 @@ class ClanFile:
             self.overlap_count += 1
 
             if overlap_result:
-                self.correct_overlap.append((current, overlap_result[1], window))
+                self.correct_overlap.append((current, overlap_result[1], window, overlap_result[2]))
             else:
                 self.incorrect_overlap.append((current, window))
 
@@ -640,9 +646,9 @@ class ClanFile:
 
         if True in results:
             if curr_entry[0][0] in clan_codes["child"]:
-                return (True, curr_entry)
+                return (True, curr_entry, 999)
             else:
-                return (True, window[results.index(True)])
+                return (True, window[results.index(True)], results.index(True))
         else:
             return False
 
@@ -674,9 +680,9 @@ class ClanFile:
 
         if True in results:
             if curr_entry[0][0] in clan_codes["male"]:
-                return (True, curr_entry)
+                return (True, curr_entry, 999)  # 999 means it's the current line (this is a hack)
             else:
-                return (True, window[results.index(True)])
+                return (True, window[results.index(True)], results.index(True))
         else:
             return False
 
@@ -690,9 +696,9 @@ class ClanFile:
                 results[index] = False
         if True in results:
             if curr_entry[0][0] in clan_codes["female"]:
-                return (True, curr_entry)
+                return (True, curr_entry, 999)
             else:
-                return (True, window[results.index(True)])
+                return (True, window[results.index(True)], results.index(True))
         else:
             return False
 
@@ -707,9 +713,9 @@ class ClanFile:
 
         if True in results:
             if curr_entry[0][0] in clan_codes["artificial"]:
-                return (True, curr_entry)
+                return (True, curr_entry, 999)
             else:
-                return (True, window[results.index(True)])
+                return (True, window[results.index(True)], results.index(True))
         else:
             return False
 
@@ -724,9 +730,9 @@ class ClanFile:
 
         if True in results:
             if curr_entry[0][0] in clan_codes["overlap"]:
-                return (True, curr_entry)
+                return (True, curr_entry, 999)
             else:
-                return (True, window[results.index(True)])
+                return (True, window[results.index(True)], results.index(True))
         else:
             return False
 
@@ -792,56 +798,507 @@ class ClanFile:
     def long_export(self):
         with open(self.long_out_path, "w") as file:
             writer = csv.writer(file)
-            writer.writerow(["subject", "month", "speaker_category", "classifier", "annotation"])
-            # for element in self.correct_male_dist.most_common():
+            writer.writerow(["subject",
+                             "month",
+                             "speaker_category",
+                             "timestamp",
+                             "word",
+                             "utterance_type",
+                             "object_present",
+                             "speaker_win",
+                             "lena_win-2",
+                             "lena_win-1",
+                             "lena_win-0",
+                             "lena_win+1",
+                             "lena_win+2",
+                             "win_match",
+                             "timestamp_match"])
+
+            #07_06 correct_male index 13 shows what's up
+            # timestamp, word, utt_type, obj_present, speaker_win, lena_win1, lena_win1, win_match, timestamp_match
+
+            for element in self.correct_male:
+                window = None
+                temp_window = element[2]
+                correct_index = '0'
+                if element[3] == 999:
+                    correct_index = '0'
+                else:
+                    if element[3] == 0:
+                        correct_index = '-2'
+                    if element[3] == 1:
+                        correct_index = '-1'
+                    if element[3] == 2:
+                        correct_index = '0'
+                    if element[3] == 3:
+                        correct_index = '+1'
+                    if element[3] == 4:
+                        correct_index = '+2'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "male_correct",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 correct_index,                           # index of correct match (in window)
+                                 element[1][0][2]+"_"+element[1][0][3]])  # timestamp for match
+
+            for element in self.incorrect_male:
+                window = None
+                temp_window = element[1]
+                correct_index = '0'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "male_incorrect",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 '0',                                     # index of correct match (in window)
+                                 element[0][0][2]+"_"+element[0][0][3]])  # timestamp for match
+
+            for element in self.correct_female:
+                window = None
+                temp_window = element[2]
+                correct_index = '0'
+                if element[3] == 999:
+                    correct_index = '0'
+                else:
+                    if element[3] == 0:
+                        correct_index = '-2'
+                    if element[3] == 1:
+                        correct_index = '-1'
+                    if element[3] == 2:
+                        correct_index = '0'
+                    if element[3] == 3:
+                        correct_index = '+1'
+                    if element[3] == 4:
+                        correct_index = '+2'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "female_correct",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 correct_index,                           # index of correct match (in window)
+                                 element[1][0][2]+"_"+element[1][0][3]])  # timestamp for match
+
+            for element in self.incorrect_female:
+                window = None
+                temp_window = element[1]
+                correct_index = '0'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "female_incorrect",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 '0',                                     # index of correct match (in window)
+                                 element[0][0][2]+"_"+element[0][0][3]])  # timestamp for match
+
+            for element in self.correct_child:
+                window = None
+                temp_window = element[2]
+                correct_index = '0'
+                if element[3] == 999:
+                    correct_index = '0'
+                else:
+                    if element[3] == 0:
+                        correct_index = '-2'
+                    if element[3] == 1:
+                        correct_index = '-1'
+                    if element[3] == 2:
+                        correct_index = '0'
+                    if element[3] == 3:
+                        correct_index = '+1'
+                    if element[3] == 4:
+                        correct_index = '+2'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "child_correct",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 correct_index,                           # index of correct match (in window)
+                                 element[1][0][2]+"_"+element[1][0][3]])  # timestamp for match
+
+            for element in self.incorrect_child:
+                window = None
+                temp_window = element[1]
+                correct_index = '0'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "child_incorrect",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 '0',                                     # index of correct match (in window)
+                                 element[0][0][2]+"_"+element[0][0][3]])  # timestamp for match
+
+            for element in self.correct_artificial:
+                window = None
+                temp_window = element[2]
+                correct_index = '0'
+                if element[3] == 999:
+                    correct_index = '0'
+                else:
+                    if element[3] == 0:
+                        correct_index = '-2'
+                    if element[3] == 1:
+                        correct_index = '-1'
+                    if element[3] == 2:
+                        correct_index = '0'
+                    if element[3] == 3:
+                        correct_index = '+1'
+                    if element[3] == 4:
+                        correct_index = '+2'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "artificial_correct",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 correct_index,                           # index of correct match (in window)
+                                 element[1][0][2]+"_"+element[1][0][3]])  # timestamp for match
+
+            for element in self.incorrect_artificial:
+                window = None
+                temp_window = element[1]
+                correct_index = '0'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "artificial_incorrect",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 '0',                                     # index of correct match (in window)
+                                 element[0][0][2]+"_"+element[0][0][3]])  # timestamp for match
+
+            for element in self.correct_overlap:
+                window = None
+                temp_window = element[2]
+                correct_index = '0'
+                if element[3] == 999:
+                    correct_index = '0'
+                else:
+                    if element[3] == 0:
+                        correct_index = '-2'
+                    if element[3] == 1:
+                        correct_index = '-1'
+                    if element[3] == 2:
+                        correct_index = '0'
+                    if element[3] == 3:
+                        correct_index = '+1'
+                    if element[3] == 4:
+                        correct_index = '+2'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "overlap_correct",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 correct_index,                           # index of correct match (in window)
+                                 element[1][0][2]+"_"+element[1][0][3]])  # timestamp for match
+
+            for element in self.incorrect_overlap:
+                window = None
+                temp_window = element[1]
+                correct_index = '0'
+
+                if len(temp_window) == 5:
+                    window = temp_window
+
+                if len(temp_window) == 3:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              temp_window[1],
+                              temp_window[2],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+                if len(temp_window) == 1:
+                    window = [[('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              temp_window[0],
+                              [('NA', 'NA', 'NA', 'NA')],
+                              [('NA', 'NA', 'NA', 'NA')]]
+
+
+                writer.writerow([self.subject,
+                                 self.month,
+                                 "overlap_incorrect",
+                                 element[0][0][2]+"_"+element[0][0][3],   # timestamp
+                                 element[0][0][4],                        # word
+                                 element[0][0][5],                        # utt_type
+                                 element[0][0][6],                        # obj_present
+                                 element[0][0][1],                        # speaker_win
+                                 window[0][0][0],                         # -2 lena code
+                                 window[1][0][0],                         # -1 lena code
+                                 element[0][0][0],                        #  0 lena code
+                                 window[3][0][0],                         # +1 lena code
+                                 window[4][0][0],                         # +2 lena code
+                                 '0',                                     # index of correct match (in window)
+                                 element[0][0][2]+"_"+element[0][0][3]])  # timestamp for match
+            # for element in self.correct_male_dist2:
             #     writer.writerow([self.subject, self.month, "male_correct", element[0], element[1]])
-            # for element in self.incorrect_male_dist.most_common():
+            # for element in self.incorrect_male_dist2:
             #     writer.writerow([self.subject, self.month, "male_incorrect", element[0], element[1]])
-
-            for element in self.correct_male_dist2:
-                writer.writerow([self.subject, self.month, "male_correct", element[0], element[1]])
-            for element in self.incorrect_male_dist2:
-                writer.writerow([self.subject, self.month, "male_incorrect", element[0], element[1]])
-
-            # for element in self.correct_female_dist.most_common():
+            #
+            #
+            # for element in self.correct_female_dist2:
             #     writer.writerow([self.subject, self.month, "female_correct", element[0], element[1]])
-            # for element in self.incorrect_female_dist.most_common():
+            # for element in self.incorrect_female_dist2:
             #     writer.writerow([self.subject, self.month, "female_incorrect", element[0], element[1]])
-
-            for element in self.correct_female_dist2:
-                writer.writerow([self.subject, self.month, "female_correct", element[0], element[1]])
-            for element in self.incorrect_female_dist2:
-                writer.writerow([self.subject, self.month, "female_incorrect", element[0], element[1]])
-
-            # for element in self.correct_child_dist.most_common():
+            #
+            #
+            # for element in self.correct_child_dist2:
             #     writer.writerow([self.subject, self.month, "child_correct", element[0], element[1]])
-            # for element in self.incorrect_child_dist.most_common():
+            # for element in self.incorrect_child_dist2:
             #     writer.writerow([self.subject, self.month, "child_incorrect", element[0], element[1]])
-
-            for element in self.correct_child_dist2:
-                writer.writerow([self.subject, self.month, "child_correct", element[0], element[1]])
-            for element in self.incorrect_child_dist2:
-                writer.writerow([self.subject, self.month, "child_incorrect", element[0], element[1]])
-
-            # for element in self.correct_artificial_dist.most_common():
+            #
+            #
+            # for element in self.correct_artificial_dist2:
             #     writer.writerow([self.subject, self.month, "artificial_correct", element[0], element[1]])
-            # for element in self.incorrect_artificial_dist.most_common():
+            # for element in self.incorrect_artificial_dist2:
             #     writer.writerow([self.subject, self.month, "artificial_incorrect", element[0], element[1]])
-
-            for element in self.correct_artificial_dist2:
-                writer.writerow([self.subject, self.month, "artificial_correct", element[0], element[1]])
-            for element in self.incorrect_artificial_dist2:
-                writer.writerow([self.subject, self.month, "artificial_incorrect", element[0], element[1]])
-
-            # for element in self.correct_overlap_dist.most_common():
+            #
+            #
+            # for element in self.correct_overlap_dist2:
             #     writer.writerow([self.subject, self.month, "overlap_correct", element[0], element[1]])
-            # for element in self.incorrect_overlap_dist.most_common():
+            # for element in self.incorrect_overlap_dist2:
             #     writer.writerow([self.subject, self.month, "overlap_incorrect", element[0], element[1]])
-
-            for element in self.correct_overlap_dist2:
-                writer.writerow([self.subject, self.month, "overlap_correct", element[0], element[1]])
-            for element in self.incorrect_overlap_dist2:
-                writer.writerow([self.subject, self.month, "overlap_incorrect", element[0], element[1]])
 
 class ClanDir:
     def __init__(self, path, output_path, window_size):
