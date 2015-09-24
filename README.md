@@ -1,6 +1,6 @@
 # clanstats
 
-
+wiki documentation [here](http://wiki.bcs.rochester.edu/Seedlings/Clanstats)
 
 ## usage
 
